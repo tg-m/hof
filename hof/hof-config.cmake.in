@@ -1,0 +1,27 @@
+# Config file for @hof_LIB_NAME@
+# It defines the following variables
+#  @hof_LIB_NAME@_INCLUDE_DIRS - include directories for @hof_LIB_NAME@
+#  @hof_LIB_NAME@_LIBRARIES    - libraries to link against
+#  @hof_LIB_NAME@_EXECUTABLE   - the @hof_LIB_NAME@ executable
+#
+# This is @CONFIG_DOT_CMAKE_TREE_TYPE@ tree cmake file
+
+# Compute paths
+get_filename_component(@hof_LIB_NAME@_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(@hof_LIB_NAME@_INCLUDE_DIRS "@CONFIG_DOT_CMAKE_INCLUDE_DIRS@")
+
+# Our library dependencies (contains definitions for IMPORTED targets)
+include("${@hof_LIB_NAME@_CMAKE_DIR}/@hof_exports_cmake@")
+
+# These are IMPORTED targets created by @hof_exports_cmake@
+set(@hof_LIB_NAME@_LIBRARIES @hof_LIB_NAME@)
+set(@hof_LIB_NAME@_LIBRARIES_STATIC @hof_LIB_NAME@-static)
+
+#set(@hof_LIB_NAME@ zcomm)
+#set(@hof_LIB_NAME@-static zcomm-static)
+
+
+#@PACKAGE_INIT@
+#include("${CMAKE_CURRENT_LIST_FILE}/@hof_exports_cmake@")
+#check_required_component("@PROJECT_NAME@")
+

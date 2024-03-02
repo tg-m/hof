@@ -1,0 +1,56 @@
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+
+# Python stuff
+*.pyc
+
+# No logs and graphs
+*.log
+*.png
+*.svg
+*.eps
+
+# No exec
+*.run
+
+# No commits
+*.nocommit
+*.dontcommit
+
+# No it++ results files
+*.it
+
+
+# gcov (test coverage tool files)
+*.gcda
+*.gcno
+*.gcov
+
+# No simulation results
+results/*
+
+# No documentation
+doc/
+
+# No build directory
+build/
+build-zynq/
+build-musl/
+build*/
+
+# No eclipse files
+/.project
+/.cproject
+.settings/*
+
