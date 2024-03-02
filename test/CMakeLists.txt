@@ -12,12 +12,14 @@ set(dependencies_static
     ${GTEST_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT}
     "${HOF_LIB_NAME}-static"
+    fmt
 )
 set(dependencies
     ${GTEST_LIBRARIES}
     ${LIBGFLAGS_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT}
     "${HOF_LIB_NAME}"
+    fmt
 )
 
 
