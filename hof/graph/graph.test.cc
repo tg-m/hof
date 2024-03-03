@@ -53,6 +53,7 @@ TEST_F(graph_Test, copy_from_old_main) {
 
     auto const print_elem = [](auto const& elem) {
         fmt::print("Visited: {}\n", elem);
+        return hof::visit_result_t::do_end_normally;
     };
 
     {
@@ -99,10 +100,11 @@ TEST_F(graph_Test, copy_from_old_main) {
             fmt::print(
                 "has_path<...>(..., '{}', '{}'): {}\n", src, dst, result
             );
+            return result;
         };
-        call_has_path('f', 'i');
-        call_has_path('i', 'f');
-        call_has_path('i', 'h');
+        ASSERT_TRUE(call_has_path('f', 'i'));
+        ASSERT_FALSE(call_has_path('i', 'f'));
+        ASSERT_TRUE(call_has_path('i', 'h'));
     }
 
     {
@@ -131,10 +133,81 @@ TEST_F(graph_Test, copy_from_old_main) {
 
 
     }
-
-
-
 }
+
+
+TEST_F(graph_Test, idead_for_graphs) {
+    auto const print_f = [](auto const& elem) {
+        fmt::print("elem: {}\n", elem);
+        return hof::visit_result_t::do_end_normally;
+    };
+
+    using elem_t = char;
+
+    hof::adj_list_t<elem_t> const adj_list{
+        {'a', {'b', 'c'}},
+        {'b', {'a', 'c'}},
+        {'c', {'a', 'b', 'd'}},
+        {'d', {'a', 'c'}},
+        {'e', {'f', 'g'}},
+        {'f', {'g'}},
+        {'g', {'h'}},
+        {'h', {'e'}},
+    };
+    hof::depth_first_traversal<elem_t>(adj_list, 'a', print_f);
+
+    {
+        bool is_a_connected_to_d_result = false;
+        auto const is_a_to_d_f = [&](auto const elem) {
+            if('e' == elem) {
+                is_a_connected_to_d_result = true;
+                return hof::visit_result_t::do_end_by_visit;
+            }
+            return hof::visit_result_t::do_end_normally;
+        };
+        hof::depth_first_traversal<elem_t>(adj_list, 'a', is_a_to_d_f);
+        fmt::print(
+            "is_a_connected_to_d_result: {}\n", is_a_connected_to_d_result
+        );
+        ASSERT_FALSE(is_a_connected_to_d_result);
+    }
+
+
+    auto const make_is_connected_to = [](elem_t const& conn_to, bool* result) {
+        return [=](elem_t const& elem) {
+            if(conn_to == elem) {
+                *result = true;
+                return hof::visit_result_t::do_end_by_visit;
+            }
+            return hof::visit_result_t::do_end_normally;
+        };
+    };
+
+
+    for(auto const& [from, to, expected] :
+        {std::make_tuple('a', 'b', true), std::make_tuple('a', 'e', false)}) {
+        bool result = false;
+        fmt::print(
+            "is [{}] connected to: [{}]: {}\n",
+            from,
+            to,
+            (hof::depth_first_traversal<elem_t>(
+                 adj_list, from, make_is_connected_to(to, &result)
+             ),
+             result)
+        );
+        ASSERT_EQ(expected, result);
+    }
+
+    {
+        std::uint32_t const expected = 2;
+        auto const result = hof::count_disconnected_sub_graphs<elem_t>(adj_list);
+        fmt::print("num_of_disconn_sub_graphs: {}\n", result);
+        ASSERT_EQ(expected, result);
+    }
+}
+
+
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif /* __clang__ */

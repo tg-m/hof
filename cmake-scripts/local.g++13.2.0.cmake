@@ -48,6 +48,7 @@ set(
 )
 set(CXX_COMPILE_OPTIONS
     "-std=c++23"
+    "-fconcepts"
     "-O3"
     "-nostdinc++"
     "-nostdlib++"

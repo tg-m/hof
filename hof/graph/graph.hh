@@ -25,7 +25,7 @@
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 
-
+#include <concepts>
 
 namespace hof {
 
@@ -66,9 +66,22 @@ enum class edge_connect_t {
 };
 
 
+template<typename F, typename T>
+concept Visitable = requires(F f, T t) {
+    { f(t) };
+};
 
+enum class visit_result_t {
+    do_end_by_visit,
+    do_end_normally,
+};
 
-template<graph_traversal_type_t graph_traversal_v, typename T, typename Visit_f>
+//template<typename F, typename T>
+//concept VisitableWithResult = requires(F f, T t) {
+//    { f(t) } -> std::convertible_to<visit_result_t>;
+//};
+
+template<graph_traversal_type_t graph_traversal_v, typename T, Visitable<T> Visit_f>
 static void generic_graph_traversal(
     adj_list_t<T> const& adj_list,
     T const& first,
@@ -158,7 +171,10 @@ static void generic_graph_traversal(
         }
 
 
-        visit(it->first);
+        // visit(it->first);
+        if(visit_result_t::do_end_by_visit == visit(it->first)) {
+            return;
+        }
 
         auto const trq_end = x_end(it->second);
         for(auto trq_it = x_begin(it->second); trq_end != trq_it; ++trq_it) {
@@ -177,55 +193,60 @@ static void depth_first_traversal(
     T const& first,
     Visit_f const& visit
 ) {
-    using it_t = typename adj_list_t<T>::const_iterator;
-    std::vector<it_t> stack{};
-    stack.reserve(adj_list.size());
-
-    {
-        auto const it = adj_list.find(first);
-        if(std::end(adj_list) == it) {
-            // NOTE(tgm): an alternative to checking here, whether we
-            //            even were able to find the starting / first element
-            //            alleviates us from running the following check in the
-            //            while loop, i.e.:
-            //
-            //              if(std::end(adj_list) == it) { continue; }
-            //
-            return;
-        }
-        stack.push_back(it);
+    if constexpr(true) {
+        generic_graph_traversal<graph_traversal_type_t::depth_first, T, Visit_f>(adj_list, first, visit);
     }
+    else {
+        using it_t = typename adj_list_t<T>::const_iterator;
+        std::vector<it_t> stack{};
+        stack.reserve(adj_list.size());
 
-    // std::unordered_map<T const*, bool> visited{};
-    std::unordered_set<T const*> visited;
-
-
-    while(false == stack.empty()) {
-        it_t const it = stack.back();
-        stack.pop_back();
-
-
-
-        if(std::end(visited) != visited.find(&(it->first))) {
-            // fmt::print("  Skipping: {}\n", it->first);
-            continue;
+        {
+            auto const it = adj_list.find(first);
+            if(std::end(adj_list) == it) {
+                // NOTE(tgm): an alternative to checking here, whether we
+                //            even were able to find the starting / first element
+                //            alleviates us from running the following check in the
+                //            while loop, i.e.:
+                //
+                //              if(std::end(adj_list) == it) { continue; }
+                //
+                return;
+            }
+            stack.push_back(it);
         }
 
-        // visited[&(it->first)] = true;
-        visited.insert(&(it->first));
-
-        visit(it->first);
+        // std::unordered_map<T const*, bool> visited{};
+        std::unordered_set<T const*> visited;
 
 
-        for(auto stack_it = std::rbegin(it->second);
-            std::rend(it->second) != stack_it;
-            ++stack_it) {
-            auto const& e = *stack_it;
+        while(false == stack.empty()) {
+            it_t const it = stack.back();
+            stack.pop_back();
 
-            auto const sub_it = adj_list.find(e);
-            if(std::end(adj_list) != sub_it) {
-                stack.push_back(sub_it);
-                // fmt::print("  pushing: {}\n", sub_it->first);
+
+
+            if(std::end(visited) != visited.find(&(it->first))) {
+                // fmt::print("  Skipping: {}\n", it->first);
+                continue;
+            }
+
+            // visited[&(it->first)] = true;
+            visited.insert(&(it->first));
+
+            visit(it->first);
+
+
+            for(auto stack_it = std::rbegin(it->second);
+                std::rend(it->second) != stack_it;
+                ++stack_it) {
+                auto const& e = *stack_it;
+
+                auto const sub_it = adj_list.find(e);
+                if(std::end(adj_list) != sub_it) {
+                    stack.push_back(sub_it);
+                    // fmt::print("  pushing: {}\n", sub_it->first);
+                }
             }
         }
     }
@@ -237,49 +258,54 @@ static void breadth_first_tranversal(
     T const& first,
     Visit_f const& visit
 ) {
-    using it_t = typename adj_list_t<T>::const_iterator;
-    std::deque<it_t> fifo{};
-
     if constexpr(true) {
-        // more concise implementation of the else branch
-        fifo.push_back(adj_list.find(first));
-        if(std::end(adj_list) == fifo.back()) {
-            return;
-        }
+        generic_graph_traversal<graph_traversal_type_t::breadth_first, T, Visit_f>(adj_list, first, visit);
     }
     else {
-        // more explicit implementation
-        {
-            auto const it = adj_list.find(first);
-            if(std::end(adj_list) == it) {
+        using it_t = typename adj_list_t<T>::const_iterator;
+        std::deque<it_t> fifo{};
+
+        if constexpr(true) {
+            // more concise implementation of the else branch
+            fifo.push_back(adj_list.find(first));
+            if(std::end(adj_list) == fifo.back()) {
                 return;
             }
-            fifo.push_back(it);
         }
-    }
-
-    std::unordered_set<T const*> visited{};
-
-
-    while(false == fifo.empty()) {
-        auto const it = fifo.front();
-        fifo.pop_front();
-
-        if(std::end(visited) != visited.find(&(it->first))) {
-            continue;
+        else {
+            // more explicit implementation
+            {
+                auto const it = adj_list.find(first);
+                if(std::end(adj_list) == it) {
+                    return;
+                }
+                fifo.push_back(it);
+            }
         }
 
-        visited.insert(&(it->first));
+        std::unordered_set<T const*> visited{};
 
-        visit(it->first);
 
-        for(auto fifo_it = std::begin(it->second);
-            std::end(it->second) != fifo_it;
-            ++fifo_it) {
+        while(false == fifo.empty()) {
+            auto const it = fifo.front();
+            fifo.pop_front();
 
-            auto const elem_it = adj_list.find(*fifo_it);
-            if(std::end(adj_list) != elem_it) {
-                fifo.push_back(elem_it);
+            if(std::end(visited) != visited.find(&(it->first))) {
+                continue;
+            }
+
+            visited.insert(&(it->first));
+
+            visit(it->first);
+
+            for(auto fifo_it = std::begin(it->second);
+                std::end(it->second) != fifo_it;
+                ++fifo_it) {
+
+                auto const elem_it = adj_list.find(*fifo_it);
+                if(std::end(adj_list) != elem_it) {
+                    fifo.push_back(elem_it);
+                }
             }
         }
     }
@@ -376,6 +402,43 @@ static void print(adj_list_t<T> const& adj_list) {
         fmt::print("{}: {}\n", elem.first, elem.second);
     }
 }
+
+
+
+
+
+
+
+template<typename T>
+std::uint32_t count_disconnected_sub_graphs(adj_list_t<T> const& adj_list) {
+    std::unordered_set<T> nodes{};
+    nodes.reserve(adj_list.size());
+    for(auto const& elem : adj_list) {
+        nodes.insert(elem.first);
+    }
+
+    auto const nodes_remover = [&](T const& elem) {
+        nodes.erase(elem);
+        return visit_result_t::do_end_normally;
+    };
+
+    std::uint32_t result = 0;
+    while(false == nodes.empty()) {
+        depth_first_traversal<T>(adj_list, *std::begin(nodes), nodes_remover);
+        ++result;
+    }
+
+    return result;
+}
+
+
+
+
+
+
+
+
+
 
 
 static_assert(std::is_same_v<char, std::unordered_map<char, int>::key_type>);
