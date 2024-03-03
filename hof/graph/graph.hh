@@ -13,24 +13,25 @@
 #include <cstdint>
 
 
+#include <concepts>
 #include <queue>
+#include <set>
 #include <string>
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
-#include <set>
 #include <vector>
+
+
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 
-#include <concepts>
 
 namespace hof {
 
 class graph final {
-// ${declarations}
 public:
     graph();
     virtual ~graph() noexcept;
@@ -48,22 +49,15 @@ private:
 
 
 
-
 template<typename T>
 using adj_list_t = std::unordered_map<T, std::vector<T>>;
 
 template<typename T>
 using edge_list_t = std::vector<std::pair<T, T>>;
 
-enum class graph_traversal_type_t {
-    depth_first,
-    breadth_first
-};
+enum class graph_traversal_type_t { depth_first, breadth_first };
 
-enum class edge_connect_t {
-    unidirectional,
-    bidirectional
-};
+enum class edge_connect_t { unidirectional, bidirectional };
 
 
 template<typename F, typename T>
@@ -76,10 +70,10 @@ enum class visit_result_t {
     do_end_normally,
 };
 
-//template<typename F, typename T>
-//concept VisitableWithResult = requires(F f, T t) {
-//    { f(t) } -> std::convertible_to<visit_result_t>;
-//};
+// template<typename F, typename T>
+// concept VisitableWithResult = requires(F f, T t) {
+//     { f(t) } -> std::convertible_to<visit_result_t>;
+// };
 
 template<graph_traversal_type_t graph_traversal_v, typename T, Visitable<T> Visit_f>
 static void generic_graph_traversal(
@@ -91,18 +85,24 @@ static void generic_graph_traversal(
 
     std::deque<it_t> trav_queue{}; // i.e.: traversal queue
 
-    {
-        auto const it = adj_list.find(first);
-        if(std::end(adj_list) == it) {
-            return;
-        }
-        trav_queue.push_back(it);
+    trav_queue.push_back(adj_list.find(first));
+    if(std::end(adj_list) == trav_queue.back()) {
+        return;
     }
+
+    // {
+    //     auto const it = adj_list.find(first);
+    //     if(std::end(adj_list) == it) {
+    //         return;
+    //     }
+    //     trav_queue.push_back(it);
+    // }
 
 
 
     auto const [x_begin, x_end, x_take_from_queue] = [] {
-        if constexpr(graph_traversal_type_t::depth_first == graph_traversal_v) {
+        if constexpr(graph_traversal_type_t::depth_first ==
+                     graph_traversal_v) {
             return std::make_tuple(
                 [](auto const& container) { return std::rbegin(container); },
                 [](auto const& container) { return std::rend(container); },
@@ -194,7 +194,9 @@ static void depth_first_traversal(
     Visit_f const& visit
 ) {
     if constexpr(true) {
-        generic_graph_traversal<graph_traversal_type_t::depth_first, T, Visit_f>(adj_list, first, visit);
+        generic_graph_traversal<graph_traversal_type_t::depth_first, T, Visit_f>(
+            adj_list, first, visit
+        );
     }
     else {
         using it_t = typename adj_list_t<T>::const_iterator;
@@ -205,9 +207,9 @@ static void depth_first_traversal(
             auto const it = adj_list.find(first);
             if(std::end(adj_list) == it) {
                 // NOTE(tgm): an alternative to checking here, whether we
-                //            even were able to find the starting / first element
-                //            alleviates us from running the following check in the
-                //            while loop, i.e.:
+                //            even were able to find the starting / first
+                //            element alleviates us from running the following
+                //            check in the while loop, i.e.:
                 //
                 //              if(std::end(adj_list) == it) { continue; }
                 //
@@ -259,7 +261,10 @@ static void breadth_first_tranversal(
     Visit_f const& visit
 ) {
     if constexpr(true) {
-        generic_graph_traversal<graph_traversal_type_t::breadth_first, T, Visit_f>(adj_list, first, visit);
+        generic_graph_traversal<
+            graph_traversal_type_t::breadth_first,
+            T,
+            Visit_f>(adj_list, first, visit);
     }
     else {
         using it_t = typename adj_list_t<T>::const_iterator;
@@ -398,11 +403,10 @@ adj_list_t<T> edge_list_to_adj_list(edge_list_t<T> const& edge_list) {
 
 template<typename T>
 static void print(adj_list_t<T> const& adj_list) {
-    for(auto const& elem: adj_list) {
+    for(auto const& elem : adj_list) {
         fmt::print("{}: {}\n", elem.first, elem.second);
     }
 }
-
 
 
 
@@ -430,11 +434,6 @@ std::uint32_t count_disconnected_sub_graphs(adj_list_t<T> const& adj_list) {
 
     return result;
 }
-
-
-
-
-
 
 
 
