@@ -456,7 +456,69 @@ bool are_nodes_connected(adj_list_t<T> const& adj_list, T const& src, T const& d
     return result;
 }
 
+template<typename T>
+std::int32_t shortest_path_length(adj_list_t<T> const& adj_list, T const& src, T const& dst) {
+    using it_t = typename adj_list_t<T>::const_iterator;
 
+    auto const end_al = std::end(adj_list);
+
+    auto const it_dst = adj_list.find(dst);
+
+
+    std::deque<std::pair<it_t, std::int32_t>> fifo{};
+    fifo.push_back(std::make_pair(adj_list.find(src), 0));
+
+
+
+
+    if(end_al == fifo.back().first || end_al == it_dst) {
+        return -1;
+    }
+
+
+    // result.push_back(&*fifo.back());
+
+    std::unordered_set<T const*> visited{};
+
+    while(false == fifo.empty()) {
+        auto const [it, result] = fifo.front();
+        fifo.pop_front();
+
+        if(false == visited.insert(&(it->first)).second) {
+            continue;
+        }
+
+        // fmt::print(
+        //     "{}visiting: [{}]\n",
+        //     fmt::join(
+        //         std::vector<std::string>(
+        //             static_cast<std::uint32_t>(result), " "
+        //         ),
+        //         ""
+        //     ),
+        //     it->first
+        // );
+
+        if(it_dst == it) {
+            return result;
+        }
+
+        for(auto const& neigh : it->second) {
+            auto const it_neigh = adj_list.find(neigh);
+            if(end_al == it_neigh) {
+                continue;
+            }
+            fifo.push_back(std::make_pair(it_neigh, 1 + result));
+        }
+    }
+
+
+
+
+
+
+    return -1;
+}
 
 
 

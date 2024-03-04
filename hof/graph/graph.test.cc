@@ -398,6 +398,82 @@ TEST_F(
     ASSERT_EQ(expected, actual);
 }
 
+
+
+
+TEST_F(graph_Test, yt__example__shortest_path_length___char___0) {
+    using elem_t = char;
+
+    // Graph looks like this:
+    //
+    // w -- x -- y -- z -- v
+    // |                   |
+    //  -------------------
+    //
+    hof::adj_list_t<elem_t> const adj_list{
+        {'v', {'w', 'z'}},
+        {'w', {'x', 'v'}},
+        {'x', {'w', 'y'}},
+        {'y', {'x', 'z'}},
+        {'z', {'y', 'v'}},
+    };
+
+
+    std::int32_t const expected = 2;
+    std::int32_t const actual = hof::shortest_path_length(adj_list, 'w', 'z');
+    ASSERT_EQ(expected, actual);
+
+
+    ASSERT_EQ(2, hof::shortest_path_length(adj_list, 'w', 'y'));
+    ASSERT_EQ(2, hof::shortest_path_length(adj_list, 'x', 'z'));
+    ASSERT_EQ(2, hof::shortest_path_length(adj_list, 'y', 'v'));
+    ASSERT_EQ(2, hof::shortest_path_length(adj_list, 'z', 'w'));
+    ASSERT_EQ(2, hof::shortest_path_length(adj_list, 'v', 'x'));
+
+
+    ASSERT_EQ(1, hof::shortest_path_length(adj_list, 'w', 'x'));
+    ASSERT_EQ(1, hof::shortest_path_length(adj_list, 'x', 'y'));
+    ASSERT_EQ(1, hof::shortest_path_length(adj_list, 'y', 'z'));
+    ASSERT_EQ(1, hof::shortest_path_length(adj_list, 'z', 'v'));
+    ASSERT_EQ(1, hof::shortest_path_length(adj_list, 'v', 'w'));
+
+    ASSERT_EQ(0, hof::shortest_path_length(adj_list, 'w', 'w'));
+    ASSERT_EQ(0, hof::shortest_path_length(adj_list, 'x', 'x'));
+    ASSERT_EQ(0, hof::shortest_path_length(adj_list, 'y', 'y'));
+    ASSERT_EQ(0, hof::shortest_path_length(adj_list, 'z', 'z'));
+    ASSERT_EQ(0, hof::shortest_path_length(adj_list, 'v', 'v'));
+
+    ASSERT_EQ(-1, hof::shortest_path_length(adj_list, 'w', 'a'));
+    ASSERT_EQ(-1, hof::shortest_path_length(adj_list, 'x', 'a'));
+    ASSERT_EQ(-1, hof::shortest_path_length(adj_list, 'y', 'a'));
+    ASSERT_EQ(-1, hof::shortest_path_length(adj_list, 'z', 'a'));
+    ASSERT_EQ(-1, hof::shortest_path_length(adj_list, 'v', 'a'));
+}
+
+
+TEST_F(graph_Test, yt__example__shortest_path_length___char___4) {
+    using elem_t = char;
+
+
+    auto const adj_list = hof::edge_list_to_adj_list<hof::edge_connect_t::bidirectional, elem_t>({
+            {'a', 'c'},
+            {'a', 'b'},
+            {'c', 'b'},
+            {'c', 'd'},
+            {'b', 'd'},
+            {'e', 'd'},
+            {'g', 'g'},
+    });
+
+
+    std::int32_t const expected = -1;
+    std::int32_t const actual = hof::shortest_path_length(adj_list, 'b', 'g');
+    ASSERT_EQ(expected, actual);
+
+
+}
+
+
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif /* __clang__ */
