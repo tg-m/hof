@@ -13,7 +13,7 @@
 #include <cstdint>
 
 
-#include <concepts>
+
 #include <queue>
 #include <set>
 #include <string>
@@ -27,6 +27,9 @@
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>
+
+
+#include "concepts/visitable/visitable.hh"
 
 
 namespace hof {
@@ -60,15 +63,7 @@ enum class graph_traversal_type_t { depth_first, breadth_first };
 enum class edge_connect_t { unidirectional, bidirectional };
 
 
-template<typename F, typename T>
-concept Visitable = requires(F f, T t) {
-    { f(t) };
-};
 
-enum class visit_result_t {
-    do_end_by_visit,
-    do_end_normally,
-};
 
 // template<typename F, typename T>
 // concept VisitableWithResult = requires(F f, T t) {
