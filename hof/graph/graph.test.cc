@@ -473,6 +473,567 @@ TEST_F(graph_Test, yt__example__shortest_path_length___char___4) {
 
 }
 
+static std::pair<char, char> get_water_land_descriptors() {
+    return std::make_pair('W', 'L');
+}
+static std::uint32_t island_count(std::vector<std::vector<char>> const& grid) {
+    auto const [W, L] = get_water_land_descriptors();
+
+
+
+    auto const islands_traverse_depth_first =
+        [](std::vector<std::vector<char>> const& grid_,
+           std::pair<std::uint32_t, std::uint32_t> const start_row_col,
+           std::vector<std::vector<bool>>* visited) {
+            auto const rows_num = static_cast<std::uint32_t>(grid_.size());
+            auto const cols_num = static_cast<std::uint32_t>(grid_[0].size());
+
+            auto const [xW, xL] = get_water_land_descriptors();
+
+            std::vector<std::pair<std::uint32_t, std::uint32_t>> lifo{};
+
+            lifo.push_back(start_row_col);
+
+            while(false == lifo.empty()) {
+                auto const [row, col] = lifo.back();
+                lifo.pop_back();
+
+                // fmt::print("inspecting: row, col: [{}][{}]\n", row, col);
+
+                if(true == (*visited)[row][col]) { continue; }
+
+                (*visited)[row][col] = true;
+
+
+                auto const neighbours = std::vector<std::pair<std::uint32_t, std::uint32_t>>{
+                    // INFO(tgm): We depend here on the fact that:
+                    //
+                    //              static_cast<std::uint32_t>(-1) = 2^32 - 1
+                    //
+                    //            and this is WAY TOO LARGE size of the grid
+                    //            to be able to look for islands on it.
+                    //
+                    //            This assumption, however, can be lifted by
+                    //            taking more caution when adding (row, col)
+                    //            that are placed on the edge of the grid!
+                    //
+                    // clang-format off
+                    {row - 1, col    }, // up
+                    {row + 1, col    }, // down
+                    {row    , col - 1}, // left
+                    {row    , col + 1}, // right
+                    // clang-format on
+                };
+
+                for(auto const& n : neighbours) {
+                    auto const [r, c] = n;
+
+
+                    if((rows_num > r && cols_num > c) &&
+                       (false == (*visited)[r][c]) && xL == grid_[r][c]) {
+                        // fmt::print("  inserting: (r, c) = [{}]\n", n);
+                        lifo.push_back(n);
+                    }
+                }
+            }
+
+        };
+
+
+    std::vector<std::vector<bool>> visited = [&] {
+        std::vector<std::vector<bool>> result{};
+
+        for(auto const& row : grid) {
+            result.emplace_back(std::vector<bool>(row.size(), false));
+        }
+
+        return result;
+    }();
+
+    std::uint32_t result = 0;
+
+    // Why 'c' and 'r' instead of more descriptive names?
+    //
+    // 'c' and 'r' are used for brevity
+    //
+    // 'r' - row number
+    // 'c' - column number
+    for(std::uint32_t r = 0; grid.size() > r; ++r) {
+        auto const& row = grid[r];
+        for(std::uint32_t c = 0; row.size() > c; ++c) {
+            if(W == row[c]) { continue; }
+            if(true == visited[r][c]) { continue; }
+
+            fmt::print("traversing: (r, c:) [{}]\n", std::make_pair(r, c));
+
+            islands_traverse_depth_first(grid, std::make_pair(r, c), &visited);
+
+            ++result;
+        }
+    }
+
+
+    return result;
+}
+
+TEST_F(graph_Test, yt__example__island_count_problem___x) {
+    // '_' and 'X' are more readable
+    // '_' - water
+    // 'X' - land
+    auto const [_, X] = get_water_land_descriptors();
+
+    std::vector<std::vector<char>> const grid{
+        {_, X, _, _, X, _},
+        {X, X, _, _, X, _},
+        {_, X, _, _, _, _},
+        {_, _, _, X, X, _},
+        {_, X, _, X, X, _},
+        {_, _, _, _, _, _},
+    };
+
+    std::uint32_t const expected = 4;
+    std::uint32_t const actual = island_count(grid);
+
+    ASSERT_EQ(expected, actual);
+}
+
+
+TEST_F(graph_Test, yt__example__island_count_problem___00) {
+    // '_' and 'X' are more readable
+    // '_' - water
+    // 'X' - land
+    auto const [_, X] = get_water_land_descriptors();
+
+    std::vector<std::vector<char>> const grid{
+        {_, X, _, _, _},
+        {_, X, _, _, _},
+        {_, _, _, X, _},
+        {_, _, X, X, _},
+        {X, _, _, X, X},
+        {X, X, _, _, _},
+    };
+
+    std::uint32_t const expected = 3;
+    std::uint32_t const actual = island_count(grid);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(graph_Test, yt__example__island_count_problem___01) {
+    // '_' and 'X' are more readable
+    // '_' - water
+    // 'X' - land
+    auto const [_, X] = get_water_land_descriptors();
+
+    std::vector<std::vector<char>> const grid{
+        {X, _, _, X, _},
+        {X, _, _, X, X},
+        {_, X, _, X, _},
+        {_, _, _, _, _},
+        {_, _, X, X, X},
+    };
+
+    std::uint32_t const expected = 4;
+    std::uint32_t const actual = island_count(grid);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(graph_Test, yt__example__island_count_problem___02) {
+    // '_' and 'X' are more readable
+    // '_' - water
+    // 'X' - land
+    auto const [_, X] = get_water_land_descriptors();
+
+    std::vector<std::vector<char>> const grid{
+        {X, X, X},
+        {X, X, X},
+        {X, X, X},
+    };
+
+    std::uint32_t const expected = 1;
+    std::uint32_t const actual = island_count(grid);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(graph_Test, yt__example__island_count_problem___03) {
+    // '_' and 'X' are more readable
+    // '_' - water
+    // 'X' - land
+    auto const [_, X] = get_water_land_descriptors();
+
+    std::vector<std::vector<char>> const grid{
+        {_, _, _},
+        {_, _, _},
+        {_, _, _},
+    };
+
+    std::uint32_t const expected = 0;
+    std::uint32_t const actual = island_count(grid);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(graph_Test, yt__example__island_count_problem___mine_BIG) {
+    // '_' and 'X' are more readable
+    // '_' - water
+    // 'X' - land
+    auto const [_, X] = get_water_land_descriptors();
+
+    std::vector<std::vector<char>> const grid{
+        // clang-format off
+        {_, X, _, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, _, _, _, _, _, X, X, X, X, X, X, X, X, X, X, X, X, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, _, _, _, _, _, X, _, _, _, _, _, _, _, _, _, _, X, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, X, X, X, X, X, _, X, _, _, X, X, X, X, X, X, X, _, X, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, X, _, _, _, X, _, X, _, _, X, _, _, _, _, _, X, _, X, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, X, _, X, _, X, _, X, X, _, X, _, X, X, X, _, X, _, X, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, X, _, _, _, X, _, X, _, _, _, _, _, _, X, _, X, _, X, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, _, _, _, X, _, X, _, _, _, _, X, _, X, _, X, _, X, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, X, X, _, _, X, _, X, X, _, _, _, _, _, X, _, X, _, X, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, X, _, _, X, _, _, X, _, _, _, X, _, X, _, X, _, X, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, X, X, X, X, _, _, X, _, _, _, X, X, X, _, X, _, X, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, _, _, _, _, _, _, X, _, _, _, _, X, X, _, X, _, X, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, _, X, X, X, X, X, X, _, _, _, _, X, _, _, X, _, X, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, _, X, X, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, _, X, X, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, _, X, X, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, X, X, X, X, _, _, _, X, X, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, _, _, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, _, _, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, _, _, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, X, _, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        // clang-format on
+    };
+
+    std::uint32_t const expected = 7;
+    std::uint32_t const actual = island_count(grid);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(graph_Test, yt__example__island_count_problem___mine_CONCENTRIC) {
+    // '_' and 'X' are more readable
+    // '_' - water
+    // 'X' - land
+    auto const [_, X] = get_water_land_descriptors();
+
+    std::vector<std::vector<char>> const grid{
+        // clang-format off
+        {X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X},
+        {X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, X},
+        {X, _, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, _, X},
+        {X, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, X, _, X},
+        {X, _, X, _, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, _, X, _, X},
+        {X, _, X, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, _, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, X, _, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _, X, _, X, X, X, X, X, X, X, X, X, X, X, X, X, X, _, X, _, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _, X, _, X, _, _, _, _, _, _, _, _, _, _, _, _, X, _, X, _, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _, X, _, X, _, X, X, X, X, X, X, X, X, X, X, _, X, _, X, _, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _, X, _, X, _, X, _, _, _, _, _, _, _, _, X, _, X, _, X, _, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _, X, _, X, _, X, _, X, X, X, X, X, X, _, X, _, X, _, X, _, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _, X, _, X, _, X, _, X, _, _, _, _, X, _, X, _, X, _, X, _, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _, X, _, X, _, X, _, X, _, X, X, _, X, _, X, _, X, _, X, _, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _, X, _, X, _, X, _, X, _, X, X, _, X, _, X, _, X, _, X, _, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _, X, _, X, _, X, _, X, _, X, X, _, X, _, X, _, X, _, X, _, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _, X, _, X, _, X, _, X, _, _, _, _, X, _, X, _, X, _, X, _, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _, X, _, X, _, X, _, X, X, X, X, X, X, _, X, _, X, _, X, _, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _, X, _, X, _, X, _, _, _, _, _, _, _, _, X, _, X, _, X, _, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _, X, _, X, _, X, X, X, X, X, X, X, X, X, X, _, X, _, X, _, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _, X, _, X, _, _, _, _, _, _, _, _, _, _, _, _, X, _, X, _, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _, X, _, X, X, X, X, X, X, X, X, X, X, X, X, X, X, _, X, _, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, X, _, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, _, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, X, _, X, _, X},
+        {X, _, X, _, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, _, X, _, X},
+        {X, _, X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, X, _, X},
+        {X, _, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, _, X},
+        {X, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, X},
+        {X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X},
+        // clang-format on
+    };
+
+    std::uint32_t const expected = 9;
+    std::uint32_t const actual = island_count(grid);
+
+    ASSERT_EQ(expected, actual);
+}
+
+static std::pair<std::uint32_t, std::uint32_t>
+minmax_island_size(std::vector<std::vector<char>> const& grid) {
+    auto const [W, L] = get_water_land_descriptors();
+
+    using position_t = std::pair<std::uint32_t, std::uint32_t>;
+
+
+
+    using visited_t = std::vector<std::vector<bool>>;
+
+    auto const find_island_size =
+        [](std::vector<std::vector<char>> const& grid_,
+           position_t const position,
+           visited_t* visited_ptr) {
+            auto const max_rows = static_cast<std::uint32_t>(grid_.size());
+            auto const max_cols = static_cast<std::uint32_t>(grid_[0].size());
+
+
+            auto const [xW, xL] = get_water_land_descriptors();
+
+            // auto const [row, col] = position;
+
+            std::vector<position_t> lifo{};
+
+
+            lifo.push_back(position);
+
+
+            std::uint32_t size = 0;
+
+            while(false == lifo.empty()) {
+                auto const cur_pos = lifo.back();
+                lifo.pop_back();
+                auto const [row, col] = cur_pos;
+
+                // fmt::print("  cur_pos: {}\n", cur_pos);
+                // fmt::print(
+                //     "  visited[{}]: {}\n",
+                //     cur_pos,
+                //     static_cast<bool>((*visited_ptr)[row][col])
+                // );
+                // fmt::print("  lifo.size(): {}\n", lifo.size());
+
+
+                if(true == (*visited_ptr)[row][col]) {
+                    continue;
+                }
+                (*visited_ptr)[row][col] = true;
+
+                ++size;
+
+
+                std::vector<position_t> const neighbours{
+                    // clang-format off
+                    {row - 1, col    }, // up
+                    {row + 1, col    }, // down
+                    {row    , col - 1}, // left
+                    {row    , col + 1}, // right
+                    // clang-format on
+                };
+
+                for(auto const& n : neighbours) {
+                    auto const [r, c] = n;
+                    if(max_rows > r && max_cols > c &&
+                       (false == (*visited_ptr)[r][c]) &&
+                       (xL == grid_[r][c])) {
+                        lifo.push_back(n);
+                    }
+                }
+            }
+            return size;
+        };
+
+    visited_t visited = [&] {
+        visited_t result{};
+        for(auto const& row : grid) {
+            result.push_back(std::vector<bool>(row.size(), false));
+        }
+        return result;
+    }();
+
+
+    auto max = static_cast<std::uint32_t>(0);
+    auto min = static_cast<std::uint32_t>(-1);
+    for(std::uint32_t r = 0; grid.size() > r; ++r) {
+        auto const& row = grid[r];
+        for(std::uint32_t c = 0; row.size() > c; ++c) {
+            if(W == row[c]) {
+                continue;
+            }
+            if(true == visited[r][c]) {
+                continue;
+            }
+
+            position_t const position = std::make_pair(r, c);
+            // fmt::print("traversing: (r, c) [{}] = '{}'\n", position, row[c]);
+
+
+            std::uint32_t const cur_size =
+                find_island_size(grid, position, &visited);
+
+            min = std::min<>(min, cur_size);
+            max = std::max<>(max, cur_size);
+        }
+    }
+
+    if(0 == max) { min = 0; }
+
+    return std::make_pair(min, max);
+}
+TEST_F(graph_Test, yt__example__island_min_max_count____0000) {
+    // '_' and 'X' are more readable
+    // '_' - water
+    // 'X' - land
+    auto const [_, X] = get_water_land_descriptors();
+
+    std::vector<std::vector<char>> const grid{
+        {_, X, _, _, _},
+        {_, X, _, _, _},
+        {_, _, _, X, _},
+        {_, _, X, X, _},
+        {X, _, _, X, X},
+        {X, X, _, _, _},
+    };
+
+
+    auto const expected = std::pair<std::uint32_t, std::uint32_t>{2, 5};
+    auto const actual = minmax_island_size(grid);
+    fmt::print("(min, max) = {}\n", actual);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(graph_Test, yt__example__island_min_max_count____0001) {
+    // '_' and 'X' are more readable
+    // '_' - water
+    // 'X' - land
+    auto const [_, X] = get_water_land_descriptors();
+
+    std::vector<std::vector<char>> const grid{
+        {X, _, _, X, _},
+        {X, _, _, X, X},
+        {_, X, _, X, _},
+        {_, _, _, _, _},
+        {_, _, X, X, X},
+    };
+
+
+    auto const expected = std::pair<std::uint32_t, std::uint32_t>{1, 4};
+    auto const actual = minmax_island_size(grid);
+    fmt::print("(min, max) = {}\n", actual);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(graph_Test, yt__example__island_min_max_count____0002) {
+    // '_' and 'X' are more readable
+    // '_' - water
+    // 'X' - land
+    auto const [_, X] = get_water_land_descriptors();
+
+    std::vector<std::vector<char>> const grid{
+        {X, X, X},
+        {X, X, X},
+        {X, X, X},
+    };
+
+
+    auto const expected = std::pair<std::uint32_t, std::uint32_t>{9, 9};
+    auto const actual = minmax_island_size(grid);
+    fmt::print("(min, max) = {}\n", actual);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(graph_Test, yt__example__island_min_max_count____0003) {
+    // '_' and 'X' are more readable
+    // '_' - water
+    // 'X' - land
+    auto const [_, X] = get_water_land_descriptors();
+
+    std::vector<std::vector<char>> const grid{
+        {X, X},
+        {_, _},
+        {X, X},
+        {_, X},
+    };
+
+
+    auto const expected = std::pair<std::uint32_t, std::uint32_t>{2, 3};
+    auto const actual = minmax_island_size(grid);
+    fmt::print("(min, max) = {}\n", actual);
+
+    ASSERT_EQ(expected, actual);
+}
+
+
+TEST_F(graph_Test, yt__example__island_min_max_count____000x) {
+    // '_' and 'X' are more readable
+    // '_' - water
+    // 'X' - land
+    auto const [_, X] = get_water_land_descriptors();
+
+    std::vector<std::vector<char>> const grid{
+        {_, X, _, _, X, _},
+        {X, X, _, _, X, _},
+        {_, X, _, _, _, _},
+        {_, _, _, X, X, _},
+        {_, _, _, X, X, _},
+        {_, _, _, X, _, _},
+    };
+
+
+    auto const expected = std::pair<std::uint32_t, std::uint32_t>{2, 5};
+    auto const actual = minmax_island_size(grid);
+    fmt::print("(min, max) = {}\n", actual);
+
+    ASSERT_EQ(expected, actual);
+}
+
+
+TEST_F(graph_Test, yt__example__island_min_max_count____mine_CHESS_BOARD) {
+    // '_' and 'X' are more readable
+    // '_' - water
+    // 'X' - land
+    auto const [_, X] = get_water_land_descriptors();
+
+    std::vector<std::vector<char>> const grid{
+        {_, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _},
+        {_, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _},
+        {_, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _},
+        {_, X, _, X, _, X, _, X},
+        {X, _, X, _, X, _, X, _},
+    };
+
+
+    auto const expected = std::pair<std::uint32_t, std::uint32_t>{1, 1};
+    auto const actual = minmax_island_size(grid);
+    fmt::print("(min, max) = {}\n", actual);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(graph_Test, yt__example__island_min_max_count____mine_EMPTY) {
+    // '_' and 'X' are more readable
+    // '_' - water
+    // 'X' - land
+    auto const [_, X] = get_water_land_descriptors();
+
+    std::vector<std::vector<char>> const grid{
+        {_, _, _},
+        {_, _, _},
+        {_, _, _},
+    };
+
+
+    auto const expected = std::pair<std::uint32_t, std::uint32_t>{0, 0};
+    auto const actual = minmax_island_size(grid);
+    fmt::print("(min, max) = {}\n", actual);
+
+    ASSERT_EQ(expected, actual);
+}
+
+
 
 #ifdef __clang__
 #pragma clang diagnostic pop
