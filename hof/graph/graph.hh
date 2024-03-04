@@ -414,27 +414,47 @@ static void print(adj_list_t<T> const& adj_list) {
 
 
 template<typename T>
-std::uint32_t count_disconnected_sub_graphs(adj_list_t<T> const& adj_list) {
-    std::unordered_set<T> nodes{};
+std::uint32_t count_disconnected_sub_graphs(adj_list_t<T> const& adj_list ) {
+    std::unordered_set<T const*> nodes{};
     nodes.reserve(adj_list.size());
     for(auto const& elem : adj_list) {
-        nodes.insert(elem.first);
+        nodes.insert(&(elem.first));
     }
 
     auto const nodes_remover = [&](T const& elem) {
-        nodes.erase(elem);
+        nodes.erase(&elem);
+        // fmt::print("erasing: {}\n", elem);
         return visit_result_t::do_end_normally;
     };
 
     std::uint32_t result = 0;
     while(false == nodes.empty()) {
-        depth_first_traversal<T>(adj_list, *std::begin(nodes), nodes_remover);
+        depth_first_traversal<T>(adj_list, **std::begin(nodes), nodes_remover);
         ++result;
     }
 
     return result;
 }
 
+template<graph_traversal_type_t graph_traversal_v, typename T>
+bool are_nodes_connected(adj_list_t<T> const& adj_list, T const& src, T const& dst) {
+    bool result = false;
+
+
+    auto are_connected = [&dst, &result](T const& current) {
+        if(dst == current) {
+            result = true;
+            return visit_result_t::do_end_by_visit;
+        }
+        return visit_result_t::do_end_normally;
+    };
+
+    generic_graph_traversal<graph_traversal_v>(adj_list, src, are_connected);
+
+
+
+    return result;
+}
 
 
 
