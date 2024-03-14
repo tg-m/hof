@@ -14,6 +14,7 @@
 
 #include <memory>
 #include <unordered_map>
+#include <utility>
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>
@@ -642,6 +643,524 @@ TEST_F(dynamic_programming_Test, find_min_size_of_coins_set____0008) {
         )
     );
 }
+
+
+
+
+
+
+// count paths
+// ---------------
+//
+// Write a function, countPaths, that takes in a grid as an argument. In
+// the grid, 'X' represents walls and 'O' represents open spaces. You may
+// only move down or to the right and cannot pass through walls. The
+// function should return the number of ways possible to travel from the
+// top-left corner of the grid to the bottom-right corner.
+//
+//
+namespace {
+static std::pair<char, char> get_wall_open_space_descriptors() {
+    return std::make_pair('X', 'O');
+}
+namespace details {
+static std::int32_t count_paths_two_dim_array_as_helper(
+    std::uint32_t const r,
+    std::uint32_t const c,
+    std::vector<std::vector<char>> const& grid,
+    std::vector<std::vector<std::int32_t>>* memo,
+    char const W
+) {
+
+
+    if(-1 != (*memo)[r][c]) {
+        return (*memo)[r][c];
+    }
+
+    if(W == grid[r][c]) {
+        (*memo)[r][c] = 0;
+        return 0;
+    }
+
+
+    (*memo)[r][c] =
+        count_paths_two_dim_array_as_helper(1 + r, c, grid, memo, W) +
+        count_paths_two_dim_array_as_helper(r, 1 + c, grid, memo, W);
+
+    return (*memo)[r][c];
+}
+
+static std::uint32_t count_paths_hashmap_as_helper(
+    std::uint64_t const row,
+    std::uint64_t const col,
+    std::vector<std::vector<char>> const& grid,
+    std::unordered_map<std::uint64_t, std::uint32_t>* memo,
+    char const W
+) {
+
+    std::uint64_t const key = (row << 32) + col;
+
+    auto const it = memo->find(key);
+    if(std::end(*memo) != it) {
+        return it->second;
+    }
+
+    auto const all_rows = grid.size();
+    auto const all_cols = grid.at(0).size();
+
+
+    if(W == grid[row][col]) {
+        (*memo)[key] = 0;
+        return 0;
+    }
+
+    std::uint32_t result = 0;
+    if(all_cols > 1 + col) {
+        result += count_paths_hashmap_as_helper(row, 1 + col, grid, memo, W);
+    }
+    if(all_rows > 1 + row) {
+        result += count_paths_hashmap_as_helper(1 + row, col, grid, memo, W);
+    }
+
+    (*memo)[key] = result;
+
+    return result;
+}
+} /* namespace details */
+
+static std::uint32_t count_paths_two_dim_array_as_helper(
+    std::vector<std::vector<char>> const& grid
+) {
+    auto const all_rows = static_cast<std::uint32_t>(grid.size());
+    auto const all_cols = static_cast<std::uint32_t>(grid.at(0).size());
+
+    std::vector<std::vector<std::int32_t>> memo(
+        1 + all_rows, std::vector<std::int32_t>(1 + all_cols, -1)
+    );
+
+    auto const [W, O] = get_wall_open_space_descriptors();
+
+    // Set-up boundary conditions "outside" of the grid
+    for(std::uint32_t c = 0; 1 + all_cols > c; ++c) {
+        memo[all_rows][c] = 0;
+    }
+    for(std::uint32_t r = 0; 1 + all_rows > r; ++r) {
+        memo[r][all_cols] = 0;
+    }
+
+    // base case (righ down corner)
+    memo[all_rows - 1][all_cols - 1] =
+        O == grid[all_rows - 1][all_cols - 1] ? 1 : 0;
+
+
+    auto const result = static_cast<std::uint32_t>(
+        details::count_paths_two_dim_array_as_helper(0, 0, grid, &memo, W)
+    );
+
+    // for(auto const& v : memo) {
+    //     for(auto const e : v) {
+    //         fmt::print("{:9}", e);
+    //     }
+    //     fmt::print("\n");
+    // }
+
+    return result;
+}
+
+static std::uint32_t
+count_paths_hashmap_as_helper(std::vector<std::vector<char>> const& grid) {
+    auto const [W, O] = get_wall_open_space_descriptors();
+
+    auto const all_rows = grid.size();
+    auto const all_cols = grid.at(0).size();
+
+    std::unordered_map<std::uint64_t, std::uint32_t> memo{};
+
+
+    std::uint64_t const key_base = ((all_rows - 1) << 32) + all_cols - 1;
+    memo[key_base] = W == grid[all_rows - 1][all_cols - 1] ? 0 : 1;
+
+    auto const result =
+        details::count_paths_hashmap_as_helper(0, 0, grid, &memo, W);
+
+
+    // {
+    //     std::vector<std::vector<std::int32_t>> v_memo(
+    //         all_rows, std::vector<std::int32_t>(all_cols, -1)
+    //     );
+    //     for(auto const& e : memo) {
+    //         auto const key = e.first;
+    //         auto const row = (0xFFFFFFFF00000000 & key) >> 32;
+    //         auto const col = (0x00000000FFFFFFFF & key);
+    //         v_memo[row][col] = static_cast<std::int32_t>(e.second);
+    //     }
+    //     for(auto const& v : v_memo) {
+    //         for(auto const e : v) {
+    //             fmt::print("{:9}", e);
+    //         }
+    //         fmt::print("\n");
+    //     }
+    // }
+
+
+    return result;
+}
+} /* namespace */
+
+
+TEST_F(dynamic_programming_Test, count_paths_in_a_grid_with_walls_000x_000) {
+    auto const [X, _] = get_wall_open_space_descriptors();
+    std::vector<std::vector<char>> const grid{
+        {_, _, _},
+        {_, _, _},
+    };
+
+    std::uint32_t const expected = 3;
+    std::uint32_t const actual = count_paths_two_dim_array_as_helper(grid);
+
+    ASSERT_EQ(expected, actual);
+    ASSERT_EQ(expected, count_paths_hashmap_as_helper(grid));
+}
+TEST_F(dynamic_programming_Test, count_paths_in_a_grid_with_walls_000x_001) {
+    auto const [X, _] = get_wall_open_space_descriptors();
+    std::vector<std::vector<char>> const grid{
+        {_, _, X},
+        {_, _, _},
+    };
+
+    std::uint32_t const expected = 2;
+    std::uint32_t const actual = count_paths_two_dim_array_as_helper(grid);
+
+    ASSERT_EQ(expected, actual);
+    ASSERT_EQ(expected, count_paths_hashmap_as_helper(grid));
+}
+TEST_F(dynamic_programming_Test, count_paths_in_a_grid_with_walls_000x_002) {
+    auto const [X, _] = get_wall_open_space_descriptors();
+    std::vector<std::vector<char>> const grid{
+        {_, X, _},
+        {_, _, _},
+    };
+
+    std::uint32_t const expected = 1;
+    std::uint32_t const actual = count_paths_two_dim_array_as_helper(grid);
+
+    ASSERT_EQ(expected, actual);
+    ASSERT_EQ(expected, count_paths_hashmap_as_helper(grid));
+}
+TEST_F(dynamic_programming_Test, count_paths_in_a_grid_with_walls_000x_003) {
+    auto const [X, _] = get_wall_open_space_descriptors();
+    std::vector<std::vector<char>> const grid{
+        {_, _, X},
+        {_, _, _},
+        {_, _, _},
+    };
+
+    std::uint32_t const expected = 5;
+    std::uint32_t const actual = count_paths_two_dim_array_as_helper(grid);
+
+    ASSERT_EQ(expected, actual);
+    ASSERT_EQ(expected, count_paths_hashmap_as_helper(grid));
+}
+TEST_F(dynamic_programming_Test, count_paths_in_a_grid_with_walls_0000) {
+    auto const [X, _] = get_wall_open_space_descriptors();
+    std::vector<std::vector<char>> const grid{
+        {_, _},
+        {_, _},
+    };
+
+    std::uint32_t const expected = 2;
+    std::uint32_t const actual = count_paths_two_dim_array_as_helper(grid);
+
+    ASSERT_EQ(expected, actual);
+    ASSERT_EQ(expected, count_paths_hashmap_as_helper(grid));
+}
+TEST_F(dynamic_programming_Test, count_paths_in_a_grid_with_walls_0001) {
+    auto const [X, _] = get_wall_open_space_descriptors();
+    std::vector<std::vector<char>> const grid{
+        {_, _, X},
+        {_, _, _},
+        {_, _, _},
+    };
+
+    std::uint32_t const expected = 5;
+    std::uint32_t const actual = count_paths_two_dim_array_as_helper(grid);
+
+    ASSERT_EQ(expected, actual);
+    ASSERT_EQ(expected, count_paths_hashmap_as_helper(grid));
+}
+TEST_F(dynamic_programming_Test, count_paths_in_a_grid_with_walls_0002) {
+    auto const [X, _] = get_wall_open_space_descriptors();
+    std::vector<std::vector<char>> const grid{
+        {_, _, _},
+        {_, _, X},
+        {_, _, _},
+    };
+
+    std::uint32_t const expected = 3;
+    std::uint32_t const actual = count_paths_two_dim_array_as_helper(grid);
+
+    ASSERT_EQ(expected, actual);
+    ASSERT_EQ(expected, count_paths_hashmap_as_helper(grid));
+}
+TEST_F(dynamic_programming_Test, count_paths_in_a_grid_with_walls_0003) {
+    auto const [X, _] = get_wall_open_space_descriptors();
+    std::vector<std::vector<char>> const grid{
+        {_, _, _},
+        {_, X, X},
+        {_, _, _},
+    };
+
+    std::uint32_t const expected = 1;
+    std::uint32_t const actual = count_paths_two_dim_array_as_helper(grid);
+
+    ASSERT_EQ(expected, actual);
+    ASSERT_EQ(expected, count_paths_hashmap_as_helper(grid));
+}
+TEST_F(dynamic_programming_Test, count_paths_in_a_grid_with_walls_0004) {
+    auto const [X, _] = get_wall_open_space_descriptors();
+    std::vector<std::vector<char>> const grid{
+        {_, _, X, _, _, _},
+        {_, _, X, _, _, _},
+        {_, _, X, _, _, _},
+        {X, X, X, _, _, _},
+        {_, _, _, _, _, _},
+    };
+
+    std::uint32_t const expected = 0;
+    std::uint32_t const actual = count_paths_two_dim_array_as_helper(grid);
+
+    ASSERT_EQ(expected, actual);
+    ASSERT_EQ(expected, count_paths_hashmap_as_helper(grid));
+}
+TEST_F(dynamic_programming_Test, count_paths_in_a_grid_with_walls_0005) {
+    auto const [X, _] = get_wall_open_space_descriptors();
+    std::vector<std::vector<char>> const grid{
+        {_, _, X, _, _, _},
+        {_, _, _, _, _, X},
+        {X, _, _, _, _, _},
+        {X, X, X, _, _, _},
+        {_, _, _, _, _, _},
+    };
+
+    std::uint32_t const expected = 42;
+    std::uint32_t const actual = count_paths_two_dim_array_as_helper(grid);
+
+    ASSERT_EQ(expected, actual);
+    ASSERT_EQ(expected, count_paths_hashmap_as_helper(grid));
+}
+TEST_F(dynamic_programming_Test, count_paths_in_a_grid_with_walls_0006) {
+    auto const [X, _] = get_wall_open_space_descriptors();
+    std::vector<std::vector<char>> const grid{
+        {_, _, X, _, _, _},
+        {_, _, _, _, _, X},
+        {X, _, _, _, _, _},
+        {X, X, X, _, _, _},
+        {_, _, _, _, _, X},
+    };
+
+    std::uint32_t const expected = 0;
+    std::uint32_t const actual = count_paths_two_dim_array_as_helper(grid);
+
+    ASSERT_EQ(expected, actual);
+    ASSERT_EQ(expected, count_paths_hashmap_as_helper(grid));
+}
+TEST_F(dynamic_programming_Test, count_paths_in_a_grid_with_walls_0007) {
+    auto const [X, _] = get_wall_open_space_descriptors();
+    std::vector<std::vector<char>> const grid{
+        // 15 x 15
+        {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+    };
+
+    std::uint32_t const expected = 40116600;
+    std::uint32_t const actual = count_paths_two_dim_array_as_helper(grid);
+
+    ASSERT_EQ(expected, actual);
+    ASSERT_EQ(expected, count_paths_hashmap_as_helper(grid));
+}
+TEST_F(dynamic_programming_Test, count_paths_in_a_grid_with_walls_0008) {
+    auto const [X, _] = get_wall_open_space_descriptors();
+    std::vector<std::vector<char>> const grid{
+        // 15 x 15
+        {_, _, X, X, _, _, _, X, _, _, _, _, _, _, _},
+        {_, _, X, X, _, _, _, X, _, _, _, _, _, _, _},
+        {_, _, _, X, _, _, _, X, _, _, _, _, _, _, _},
+        {X, _, _, _, _, _, _, X, _, _, _, _, _, _, _},
+        {X, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, _, _, _, _, _, _, _, _, _, _, _, X, X, _},
+        {_, _, _, _, _, _, _, X, _, _, _, _, _, X, _},
+        {_, _, _, _, _, _, _, _, X, _, _, _, _, _, _},
+        {X, X, X, _, _, _, _, _, _, X, _, _, _, _, _},
+        {_, _, _, _, X, X, _, _, _, _, X, _, _, _, _},
+        {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+        {_, _, _, _, X, X, _, _, _, _, _, _, _, _, _},
+        {_, _, _, _, _, _, _, _, X, _, _, _, _, _, _},
+        {_, _, _, _, _, _, _, _, X, _, _, _, _, _, _},
+    };
+
+    std::uint32_t const expected = 3190434;
+    std::uint32_t const actual = count_paths_two_dim_array_as_helper(grid);
+
+    ASSERT_EQ(expected, actual);
+    ASSERT_EQ(expected, count_paths_hashmap_as_helper(grid));
+}
+
+
+
+//
+// max path sum
+// ---------------
+//
+// Write a function, maxPathSum, that takes in a grid as an argument. The
+// function should return the maximum sum possible by traveling a path from
+// the top-left corner to the bottom-right corner. You may only travel
+// through the grid by moving down or right.
+//
+// You can assume that all numbers are non-negative.
+//
+
+namespace {
+namespace details {
+static std::int32_t count_max_path_sum_2d_array_as_memo(
+    std::uint32_t const row,
+    std::uint32_t const col,
+    std::vector<std::vector<std::uint32_t>> const& grid,
+    std::vector<std::vector<std::int32_t>>* const memo
+) {
+    auto const rows = static_cast<std::uint32_t>(grid.size());
+    auto const cols = static_cast<std::uint32_t>(grid[0].size());
+
+    auto const value = (*memo)[row][col];
+
+    if(-1 != value) {
+        return value;
+    }
+
+    std::int32_t result = 0;
+
+
+
+    if(rows > 1 + row) {
+        result = std::max<>(
+            result,
+            count_max_path_sum_2d_array_as_memo(1 + row, col, grid, memo)
+        );
+    }
+    if(cols > 1 + col) {
+        result = std::max<>(
+            result,
+            count_max_path_sum_2d_array_as_memo(row, 1 + col, grid, memo)
+        );
+    }
+
+    result += static_cast<std::int32_t>(grid[row][col]);
+
+
+    (*memo)[row][col] = result;
+
+    return result;
+}
+} /* namespace details */
+static std::uint32_t count_max_path_sum_2d_array_as_memo(
+    std::vector<std::vector<std::uint32_t>> const& grid
+) {
+    // auto const rows = static_cast<std::uint32_t>(grid.size());
+    // auto const cols = static_cast<std::uint32_t>(grid.at(0).size());
+    auto const rows = grid.size();
+    auto const cols = grid.at(0).size();
+    std::vector<std::vector<std::int32_t>> memo(
+        rows, std::vector<std::int32_t>(cols, -1)
+    );
+
+    memo[rows - 1][cols - 1] =
+        static_cast<std::int32_t>(grid[rows - 1][cols - 1]);
+
+
+    std::uint32_t const result = static_cast<std::uint32_t>(
+        details::count_max_path_sum_2d_array_as_memo(0, 0, grid, &memo)
+    );
+
+
+    return result;
+}
+} /* namespace */
+
+
+TEST_F(dynamic_programming_Test, count_max_path_sum____v_0000) {
+    std::vector<std::vector<std::uint32_t>> const grid = {
+        {1, 3, 12},
+        {5, 1, 1},
+        {3, 6, 1},
+    };
+    std::uint32_t const expected = 18;
+    std::uint32_t const actual = count_max_path_sum_2d_array_as_memo(grid);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(dynamic_programming_Test, count_max_path_sum____v_0001) {
+    std::vector<std::vector<std::uint32_t>> const grid = {
+        {1, 2, 8, 1},
+        {3, 1, 12, 10},
+        {4, 0, 6, 3},
+    };
+    std::uint32_t const expected = 36;
+    std::uint32_t const actual = count_max_path_sum_2d_array_as_memo(grid);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(dynamic_programming_Test, count_max_path_sum____v_0002) {
+    std::vector<std::vector<std::uint32_t>> const grid = {
+        {1, 2, 8, 1},
+        {3, 10, 12, 10},
+        {4, 0, 6, 3},
+    };
+    std::uint32_t const expected = 39;
+    std::uint32_t const actual = count_max_path_sum_2d_array_as_memo(grid);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(dynamic_programming_Test, count_max_path_sum____v_0003) {
+    std::vector<std::vector<std::uint32_t>> const grid = {
+        {1, 1, 3, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 2, 1, 1, 6, 1, 1, 5, 1, 1, 0, 0, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 1, 5, 1, 1, 1, 1, 0, 1, 1, 1, 1},
+        {2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {2, 1, 1, 1, 1, 8, 1, 1, 1, 1, 1, 1, 1},
+        {2, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 9, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 8, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 42, 1, 1, 1, 1, 1, 1, 1, 8, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    };
+    std::uint32_t const expected = 82;
+    std::uint32_t const actual = count_max_path_sum_2d_array_as_memo(grid);
+
+    ASSERT_EQ(expected, actual);
+}
+
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif /* __clang__ */
