@@ -1372,6 +1372,18 @@ find_min_number_of_summing_perfect_squares(std::uint32_t const n) {
 
 TEST_F(
     dynamic_programming_Test,
+    find_min_number_of_summing_perfect_squares___v_000x_0000
+) {
+    std::uint32_t const number = 10;
+
+    std::uint32_t const expected = 2;
+    std::uint32_t const actual =
+        find_min_number_of_summing_perfect_squares(number);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(
+    dynamic_programming_Test,
     find_min_number_of_summing_perfect_squares___v_0000
 ) {
     std::uint32_t const number = 8;
