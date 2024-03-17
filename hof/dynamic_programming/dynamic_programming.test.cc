@@ -1161,6 +1161,457 @@ TEST_F(dynamic_programming_Test, count_max_path_sum____v_0003) {
     ASSERT_EQ(expected, actual);
 }
 
+
+
+//
+// non adjacent sum
+// ---------------
+//
+// Write a function, nonAdjacentSum, that takes in an array of numbers as
+// an argument. The function should return the maximum sum of non-adjacent
+// elements in the array. There is no limit on how many elements can be
+// taken into the sum as long as they are not adjacent.
+//
+namespace {
+namespace details { } /* namespace details */
+static std::uint32_t find_max_non_adjacent_sum__with_no_helper(
+    std::vector<std::uint32_t> const& nums
+) {
+    //
+    // Example 1:
+    //
+    //   2, 4, 5, 12, 7
+    //   2, 4, 7, 16, 14
+    //
+    //
+    // Example 2:
+    //
+    // 7  5  5  12  17  29
+    // 7  5 12  19  29  48
+    //
+    //
+    // Example 3:
+    //
+    //   nums_idx:: -3  -2  -1   0   1   2   3   4   5   6
+    //   num::                   7   5   5  12  17  29
+    //   max_idx::   0   1   2   3   4   5   6   7   8   9
+    //   max::       0   0   0   7   5  12  19  29  48
+    //
+    //
+    // Recursive algorithm:
+    //
+    //   f_0 = n_0
+    //   f_1 = n_1
+    //   f_2 = n_2 + f_0
+    //   f_3 = n_3 + max(f_0, f_1)
+    //   f_4 = n_4 + max(f_1, f_2)
+    //   f_5 = ...
+    //
+    //   f_k = n_k + max(f_(k - 2), f_(k - 3))
+    //
+    auto const nums_size = static_cast<std::uint32_t>(nums.size());
+    std::vector<std::uint32_t> max_sum(3, 0);
+    for(std::uint32_t i = 0; nums_size > i; ++i) {
+        max_sum.push_back(nums[i] + std::max<>(max_sum[i], max_sum[1 + i]));
+    }
+
+
+
+    auto const ms_size = static_cast<std::uint32_t>(max_sum.size());
+    return std::max<>(max_sum[ms_size - 1], max_sum[ms_size - 2]);
+}
+} /* namespace */
+
+
+TEST_F(dynamic_programming_Test, find_max_non_adjacent_sum____v0000) {
+    std::vector<std::uint32_t> const nums{2, 4, 5, 12, 7};
+
+    std::uint32_t const expected = 16;
+    std::uint32_t const actual =
+        find_max_non_adjacent_sum__with_no_helper(nums);
+
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(dynamic_programming_Test, find_max_non_adjacent_sum____v0001) {
+    std::vector<std::uint32_t> const nums{7, 5, 5, 12};
+
+    std::uint32_t const expected = 19;
+    std::uint32_t const actual =
+        find_max_non_adjacent_sum__with_no_helper(nums);
+
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(dynamic_programming_Test, find_max_non_adjacent_sum____v0002) {
+    std::vector<std::uint32_t> const nums{7, 5, 5, 12, 17, 29};
+
+    std::uint32_t const expected = 48;
+    std::uint32_t const actual =
+        find_max_non_adjacent_sum__with_no_helper(nums);
+
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(dynamic_programming_Test, find_max_non_adjacent_sum____v0003) {
+    std::vector<std::uint32_t> const nums{72, 62, 10, 6,  20, 19, 42,
+                                          46, 24, 78, 30, 41, 75, 38,
+                                          23, 28, 66, 55, 12, 17, 9,
+                                          12, 3,  1,  19, 30, 50, 20};
+
+    std::uint32_t const expected = 488;
+    std::uint32_t const actual =
+        find_max_non_adjacent_sum__with_no_helper(nums);
+
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(dynamic_programming_Test, find_max_non_adjacent_sum____v0004) {
+    std::vector<std::uint32_t> const nums{
+        72, 62, 10, 6,  20, 19, 42, 46, 24, 78, 30, 41, 75, 38, 23, 28,
+        66, 55, 12, 17, 83, 80, 56, 68, 6,  22, 56, 96, 77, 98, 61, 20,
+        0,  76, 53, 74, 8,  22, 92, 37, 30, 41, 75, 38, 23, 28, 66, 55,
+        12, 17, 72, 62, 10, 6,  20, 19, 42, 46, 24, 78, 42
+    };
+
+    std::uint32_t const expected = 1465;
+    std::uint32_t const actual =
+        find_max_non_adjacent_sum__with_no_helper(nums);
+
+
+    ASSERT_EQ(expected, actual);
+}
+
+//
+// summing squares
+// ---------------
+// Write a function, summingSquares, that takes a target number as an
+// argument. The function should return the minimum number of perfect
+// squares that sum to the target. A perfect square is a number of the form
+// (i*i) where i >= 1.
+//
+// For example: 1, 4, 9, 16 are perfect squares, but 8 is not perfect square
+//
+namespace {
+namespace details {
+static std::uint32_t
+find_min_number_of_summing_perfect_squares__helper_hashmap(
+    std::uint32_t const n,
+    std::unordered_map<std::uint32_t, std::uint32_t>* memo
+) {
+    if(auto it = memo->find(n); std::end(*memo) != it) {
+        return it->second;
+    }
+
+
+    // we can use at most 'n' ones:
+    //
+    //  n = 1^2 + 1^2 + ... + 1^2
+    //
+    std::uint32_t result = 1 + n;
+    std::uint32_t cur = static_cast<std::uint32_t>(std::sqrt(n));
+    std::uint32_t cur_square = cur * cur;
+
+    if(n == cur_square) {
+        (*memo)[n] = 1;
+        return 1;
+    }
+
+
+    while(0 != cur_square) {
+        // fmt::print(
+        //     "looking for {} = {}^2 + count({})\n", n, cur, n - cur_square
+        // );
+        result = std::min<>(
+            result,
+            find_min_number_of_summing_perfect_squares__helper_hashmap(
+                cur_square, memo
+            ) +
+                find_min_number_of_summing_perfect_squares__helper_hashmap(
+                    n - cur_square, memo
+                )
+        );
+
+        --cur;
+        cur_square = cur * cur;
+    }
+
+    (*memo)[n] = result;
+    return result;
+}
+} /* namespace details */
+static std::uint32_t
+find_min_number_of_summing_perfect_squares(std::uint32_t const n) {
+    std::unordered_map<std::uint32_t, std::uint32_t> memo{};
+    memo[1] = 1;
+    memo[0] = 0;
+
+    auto const result =
+        details::find_min_number_of_summing_perfect_squares__helper_hashmap(
+            n, &memo
+        );
+
+    // for(auto const kv : memo) {
+    //     fmt::print("memo[{}] = {}\n", kv.first, kv.second);
+    // }
+
+    return result;
+}
+} /* namespace */
+
+
+TEST_F(
+    dynamic_programming_Test,
+    find_min_number_of_summing_perfect_squares___v_0000
+) {
+    std::uint32_t const number = 8;
+
+    std::uint32_t const expected = 2;
+    std::uint32_t const actual =
+        find_min_number_of_summing_perfect_squares(number);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(
+    dynamic_programming_Test,
+    find_min_number_of_summing_perfect_squares___v_0001
+) {
+    std::uint32_t const number = 9;
+
+    std::uint32_t const expected = 1;
+    std::uint32_t const actual =
+        find_min_number_of_summing_perfect_squares(number);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(
+    dynamic_programming_Test,
+    find_min_number_of_summing_perfect_squares___v_0002
+) {
+    std::uint32_t const number = 12;
+
+    std::uint32_t const expected = 3;
+    std::uint32_t const actual =
+        find_min_number_of_summing_perfect_squares(number);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(
+    dynamic_programming_Test,
+    find_min_number_of_summing_perfect_squares___v_0003
+) {
+    std::uint32_t const number = 1;
+
+    std::uint32_t const expected = 1;
+    std::uint32_t const actual =
+        find_min_number_of_summing_perfect_squares(number);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(
+    dynamic_programming_Test,
+    find_min_number_of_summing_perfect_squares___v_0004
+) {
+    std::uint32_t const number = 31;
+
+    std::uint32_t const expected = 4;
+    std::uint32_t const actual =
+        find_min_number_of_summing_perfect_squares(number);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(
+    dynamic_programming_Test,
+    find_min_number_of_summing_perfect_squares___v_0005
+) {
+    std::uint32_t const number = 50;
+
+    std::uint32_t const expected = 2;
+    std::uint32_t const actual =
+        find_min_number_of_summing_perfect_squares(number);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(
+    dynamic_programming_Test,
+    find_min_number_of_summing_perfect_squares___v_0006
+) {
+    std::uint32_t const number = 68;
+
+    std::uint32_t const expected = 2;
+    std::uint32_t const actual =
+        find_min_number_of_summing_perfect_squares(number);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(
+    dynamic_programming_Test,
+    find_min_number_of_summing_perfect_squares___v_0007
+) {
+    std::uint32_t const number = 87;
+
+    std::uint32_t const expected = 4;
+    std::uint32_t const actual =
+        find_min_number_of_summing_perfect_squares(number);
+
+    ASSERT_EQ(expected, actual);
+}
+
+
+
+namespace {
+namespace details {
+static std::vector<std::uint32_t> find_summing_perfect_squares(
+    std::uint32_t const n,
+    std::unordered_map<std::uint32_t, std::vector<std::uint32_t>>* const memo
+) {
+    if(auto const it = memo->find(n); std::end(*memo) != it) {
+        return it->second;
+    }
+
+    std::uint32_t cur = static_cast<std::uint32_t>(std::sqrt(n));
+    std::uint32_t cur_square = cur * cur;
+    std::vector<std::uint32_t> result(n, 1);
+
+    if(n == cur_square) {
+        (*memo)[n].emplace_back(cur);
+        return std::vector<std::uint32_t>{cur};
+    }
+
+    while(0 != cur) {
+        auto const left = find_summing_perfect_squares(cur_square, memo);
+        auto const right = find_summing_perfect_squares(n - cur_square, memo);
+
+        if(result.size() > left.size() + right.size()) {
+            result = left;
+
+            result.insert(
+                std::end(result), std::begin(right), std::end(right)
+            );
+        }
+        --cur;
+        cur_square = cur * cur;
+    }
+
+
+    (*memo)[n] = result;
+    return result;
+}
+} /* namespace details */
+static std::vector<std::uint32_t>
+find_summing_perfect_squares(std::uint32_t const n) {
+    std::unordered_map<std::uint32_t, std::vector<std::uint32_t>> memo{};
+    memo[1].emplace_back(1);
+    memo[0].emplace_back(0);
+
+    auto const result = details::find_summing_perfect_squares(n, &memo);
+    // for(auto const e : result) {
+    //     fmt::print("e: {}\n", e);
+    // }
+    return result;
+}
+} /* namespace */
+TEST_F(dynamic_programming_Test, find_summing_perfect_squares___mine_v_0000) {
+    std::uint32_t const number = 1789;
+
+    std::vector<std::uint32_t> const expected{42, 5};
+    std::vector<std::uint32_t> const actual =
+        find_summing_perfect_squares(number);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(dynamic_programming_Test, find_summing_perfect_squares___mine_v_0001) {
+    std::uint32_t const number = 1611;
+
+    std::vector<std::uint32_t> const expected{39, 9, 3};
+    std::vector<std::uint32_t> const actual =
+        find_summing_perfect_squares(number);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(dynamic_programming_Test, find_summing_perfect_squares___mine_v_0002) {
+    std::uint32_t const number = 285;
+
+    std::vector<std::uint32_t> const expected{16, 5, 2};
+    std::vector<std::uint32_t> const actual =
+        find_summing_perfect_squares(number);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(dynamic_programming_Test, find_summing_perfect_squares___v_0000) {
+    std::uint32_t const number = 8;
+
+    std::vector<std::uint32_t> const expected{2, 2};
+    std::vector<std::uint32_t> const actual =
+        find_summing_perfect_squares(number);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(dynamic_programming_Test, find_summing_perfect_squares___v_0001) {
+    std::uint32_t const number = 9;
+
+    std::vector<std::uint32_t> const expected{3};
+    std::vector<std::uint32_t> const actual =
+        find_summing_perfect_squares(number);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(dynamic_programming_Test, find_summing_perfect_squares___v_0002) {
+    std::uint32_t const number = 12;
+
+    std::vector<std::uint32_t> const expected{2, 2, 2};
+    std::vector<std::uint32_t> const actual =
+        find_summing_perfect_squares(number);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(dynamic_programming_Test, find_summing_perfect_squares___v_0003) {
+    std::uint32_t const number = 1;
+
+    std::vector<std::uint32_t> const expected{1};
+    std::vector<std::uint32_t> const actual =
+        find_summing_perfect_squares(number);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(dynamic_programming_Test, find_summing_perfect_squares___v_0004) {
+    std::uint32_t const number = 31;
+
+    std::vector<std::uint32_t> const expected{5, 2, 1, 1};
+    std::vector<std::uint32_t> const actual =
+        find_summing_perfect_squares(number);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(dynamic_programming_Test, find_summing_perfect_squares___v_0005) {
+    std::uint32_t const number = 50;
+
+    // std::vector<std::uint32_t> const expected{5, 5};
+    std::vector<std::uint32_t> const expected{7, 1};
+    std::vector<std::uint32_t> const actual =
+        find_summing_perfect_squares(number);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(dynamic_programming_Test, find_summing_perfect_squares___v_0006) {
+    std::uint32_t const number = 68;
+
+    std::vector<std::uint32_t> const expected{8, 2};
+    std::vector<std::uint32_t> const actual =
+        find_summing_perfect_squares(number);
+
+    ASSERT_EQ(expected, actual);
+}
+TEST_F(dynamic_programming_Test, find_summing_perfect_squares___v_0007) {
+    std::uint32_t const number = 87;
+
+    std::vector<std::uint32_t> const expected{9, 2, 1, 1};
+    std::vector<std::uint32_t> const actual =
+        find_summing_perfect_squares(number);
+
+    ASSERT_EQ(expected, actual);
+}
+
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif /* __clang__ */
