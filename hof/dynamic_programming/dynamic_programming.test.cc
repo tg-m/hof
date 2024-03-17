@@ -1100,6 +1100,16 @@ static std::uint32_t count_max_path_sum_2d_array_as_memo(
 } /* namespace */
 
 
+TEST_F(dynamic_programming_Test, count_max_path_sum____v_000x___000) {
+    std::vector<std::vector<std::uint32_t>> const grid = {
+        {1, 3, 12},
+        {3, 6, 1},
+    };
+    std::uint32_t const expected = 17;
+    std::uint32_t const actual = count_max_path_sum_2d_array_as_memo(grid);
+
+    ASSERT_EQ(expected, actual);
+}
 TEST_F(dynamic_programming_Test, count_max_path_sum____v_0000) {
     std::vector<std::vector<std::uint32_t>> const grid = {
         {1, 3, 12},
