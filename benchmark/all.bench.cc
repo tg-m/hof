@@ -48,7 +48,10 @@ static void random_distribution_mersenne_twister_benchmark(benchmark::State& sta
         }
     }
 
-    state.SetBytesProcessed(static_cast<int64_t>(state.iterations()) * /*static_cast<int64_t>*/ (state.range(0)));
+    state.SetBytesProcessed(
+        /*static_cast<std::int64_t>*/(state.iterations()) *
+        /*static_cast<std::int64_t>*/ (state.range(0))
+    );
     state.SetComplexityN(state.range(0));
 }
 BENCHMARK(random_distribution_mersenne_twister_benchmark)->RangeMultiplier(2)->Range(64, 2048)->Complexity(benchmark::oN)->ComputeStatistics("max", [](const std::vector<double>& v) -> double {

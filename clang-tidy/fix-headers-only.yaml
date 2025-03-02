@@ -1,0 +1,38 @@
+---
+Checks: >
+  -*,
+  bugprone-suspicious-include,
+  misc-header-include-cycle,
+  llvm-include-order,
+  portability-restrict-system-includes,
+  readability-duplicate-include,
+WarningsAsErrors: false
+FormatStyle:     file
+CheckOptions:
+  - key:             misc-include-cleaner.IgnoreHeaders
+    # clang-tidy ignored headers:
+    #
+    #   - yaml-cpp headers
+    #   - fmt headers
+    #   - protobuf headers
+    #   - gflags, gtest and filesystem wrapper header(s)
+    #
+    value:           '
+                     yaml-cpp/.*;
+                     fmt/.*;
+                     gflags/.*;
+                     filesystem;
+                     experimental/filesystem;
+                     filesystem-wrapper.hh;
+                     gflags-wrapper.hh;
+                     gtest-wrapper.hh;
+                     iio-wrapper.hh;
+                     requests.pb.h;
+                     responses.pb.h;
+                     pb.h;
+                     '
+  - key:             portability-restrict-system-includes.Includes
+    value:           '
+                     *,
+                     -experimental/filesystem,
+                     '

@@ -7,12 +7,12 @@ include(cxx_warnings.cmake)
 
 
 set(CXX_COMPILE_OPTIONS
-    "-std=c++17"
+    "-std=c++20"
     "-O3"
     "-fno-omit-frame-pointer"
     "${ALL_CXX_WARNING_FLAGS}"
     CACHE INTERNAL
-    "description"
+    "C++ compile options / settings"
 )
 
 set(CONFIG_SCRIPT_PRELOADED true

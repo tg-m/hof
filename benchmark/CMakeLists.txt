@@ -4,8 +4,6 @@
 file(GLOB_RECURSE tFs "${CMAKE_SOURCE_DIR}/*.bench.cc")
 list(APPEND testFiles "${tFs}")
 
-# file(GLOB_RECURSE tFs "${CMAKE_SOURCE_DIR}/innolot/*.bench.cc")
-# list(APPEND testFiles "${tFs}")
 
 set(dependencies_static
     benchmark

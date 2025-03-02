@@ -3,11 +3,12 @@
 # The silent assumption is that cxx_warnings.cmake is
 # in the parent directory of the directory in which
 # a cmake -C /path/to/this/script .. is invoked!
+
 include(cxx_warnings.cmake)
 
 
 set(CXX_COMPILE_OPTIONS
-    "-std=c++17"
+    "-std=c++20"
     "-O3"
     "${ALL_CXX_WARNING_FLAGS}"
     ##
@@ -23,7 +24,8 @@ set(CXX_COMPILE_OPTIONS
     ##   ## It is checked during cross / ARM builds anyway.
     ##   "-Wno-strict-overflow"
     ##
-    CACHE INTERNAL "description"
+    CACHE INTERNAL
+    "C++ compile options / settings"
 )
 
 set(CONFIG_SCRIPT_PRELOADED
