@@ -18,9 +18,9 @@
 
 #include <memory>
 // #include <numeric>
-#include <ostream> // std::ostream
+#include <ostream>     // std::ostream
 #include <type_traits> // std::is_nothrow_move_constructible_v
-#include <utility> // std::move
+#include <utility>     // std::move
 #include <vector>
 
 
@@ -94,7 +94,8 @@ public:
             );
         }
     }
-    explicit container_t(T&& a_data) noexcept(std::is_nothrow_move_constructible_v<T>)
+    explicit container_t(T&& a_data
+    ) noexcept(std::is_nothrow_move_constructible_v<T>)
     : data(std::move(a_data)) {
         if constexpr(do_log() && do_log_extra()) {
             fmt::print(" > container_t::container_t(T&&).data = [{}]\n", data);
@@ -190,18 +191,18 @@ TEST_F(linked_list_Test, create_and_add_elements) {
     };
 
     {
-        #ifdef __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wpessimizing-move"
-        #endif /* __clang__ */
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpessimizing-move"
+#endif /* __clang__ */
         //
         // We want to use here sub-optimal (possimising) implementation,
         // due to the code coverage!
         //
         hof::linked_list<elem_t> ll{std::move(elem_t{'a'})};
-        #ifdef __clang__
-        #pragma clang diagnostic pop
-        #endif /* __clang__ */
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif /* __clang__ */
 
         ll.append('b');
         ll.append(elem_t('c'));

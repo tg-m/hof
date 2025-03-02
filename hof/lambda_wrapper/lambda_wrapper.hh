@@ -16,7 +16,8 @@ namespace hof {
 
 template<typename Lambda_t>
 struct lambda_wrapper : Lambda_t {
-    lambda_wrapper(Lambda_t lambda) : Lambda_t(std::move(lambda)) {}
+    lambda_wrapper(Lambda_t lambda)
+    : Lambda_t(std::move(lambda)) { }
     using Lambda_t::operator();
 };
 

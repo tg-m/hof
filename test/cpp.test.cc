@@ -26,16 +26,16 @@
 
 class CppTest : public testing::Test {
 public:
-    virtual void SetUp() override {}
-    virtual void TearDown() override {}
+    virtual void SetUp() override { }
+    virtual void TearDown() override { }
 };
 
-TEST_F(CppTest, fixture_self_test) {}
-TEST_F(CppTest, DISABLED_test) {}
+TEST_F(CppTest, fixture_self_test) { }
+TEST_F(CppTest, DISABLED_test) { }
 
 
 TEST_F(CppTest, std_string_with_null_pointer) {
-    const char* ptr = nullptr;
+    char const* ptr = nullptr;
 
     // We especially want to catch this exception.
     //

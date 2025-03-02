@@ -26,12 +26,12 @@ int main(int argc, char** argv) {
 
 class TemplateTest : public testing::Test {
 public:
-    virtual void SetUp() override {}
-    virtual void TearDown() override {}
+    virtual void SetUp() override { }
+    virtual void TearDown() override { }
 };
 
-TEST_F(TemplateTest, fixture_self_test) {}
-TEST_F(TemplateTest, DISABLED_test) {}
+TEST_F(TemplateTest, fixture_self_test) { }
+TEST_F(TemplateTest, DISABLED_test) { }
 
 
 #ifdef __clang__

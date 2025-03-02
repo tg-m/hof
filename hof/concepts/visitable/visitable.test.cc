@@ -29,10 +29,8 @@ static hof::visit_result_t consume(T const& data, Visit_f const& visit) {
 
 class visitable_Test : public testing::Test {
 public:
-    virtual void SetUp() override {
-    }
-    virtual void TearDown() override {
-    }
+    virtual void SetUp() override { }
+    virtual void TearDown() override { }
 };
 } /* namespace */
 
@@ -43,7 +41,8 @@ TEST_F(visitable_Test, DISABLED_test) { }
 
 TEST_F(visitable_Test, basic_concept_test) {
     auto const l = [](int x) {
-        return 0 == x % 2 ? hof::visit_result_t::do_end_by_visit : hof::visit_result_t::do_end_normally;
+        return 0 == x % 2 ? hof::visit_result_t::do_end_by_visit
+                          : hof::visit_result_t::do_end_normally;
     };
 
     ASSERT_EQ(hof::visit_result_t::do_end_by_visit, consume(0, l));
@@ -59,4 +58,3 @@ TEST_F(visitable_Test, basic_concept_test) {
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif /* __clang__ */
-

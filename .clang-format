@@ -1,0 +1,470 @@
+---
+Language:        Cpp
+# BasedOnStyle:  LLVM
+AccessModifierOffset: -4
+AlignAfterOpenBracket: BlockIndent
+AlignArrayOfStructures: None
+##
+## clang-format 14
+##
+## AlignConsecutiveAssignments: false
+##
+AlignConsecutiveAssignments:
+  Enabled:         false
+  AcrossEmptyLines: true
+  AcrossComments:  false
+  AlignCompound:   true
+  AlignFunctionPointers: false
+  PadOperators:    true
+##
+## clang-format 14
+##
+##   AlignConsecutiveBitFields: None
+##
+AlignConsecutiveBitFields:
+  Enabled:         false
+  AcrossEmptyLines: false
+  AcrossComments:  false
+  AlignCompound:   false
+  AlignFunctionPointers: false
+  PadOperators:    true
+##
+## clang-format 14
+##
+##   AlignConsecutiveDeclarations: false
+##
+AlignConsecutiveDeclarations:
+  Enabled:         false
+  AcrossEmptyLines: true
+  AcrossComments:  true
+  AlignCompound:   true
+  AlignFunctionPointers: false
+  PadOperators:    true
+## clang-format 14
+##
+##   AlignConsecutiveMacros: None
+##
+AlignConsecutiveMacros:
+  Enabled:         false
+  AcrossEmptyLines: false
+  AcrossComments:  false
+  AlignCompound:   false
+  AlignFunctionPointers: false
+  PadOperators:    true
+AlignConsecutiveShortCaseStatements:
+  Enabled:         false
+  AcrossEmptyLines: false
+  AcrossComments:  false
+  AlignCaseArrows: false
+  AlignCaseColons: false
+AlignConsecutiveTableGenBreakingDAGArgColons:
+  Enabled:         false
+  AcrossEmptyLines: false
+  AcrossComments:  false
+  AlignCompound:   false
+  AlignFunctionPointers: false
+  PadOperators:    false
+AlignConsecutiveTableGenCondOperatorColons:
+  Enabled:         false
+  AcrossEmptyLines: false
+  AcrossComments:  false
+  AlignCompound:   false
+  AlignFunctionPointers: false
+  PadOperators:    false
+AlignConsecutiveTableGenDefinitionColons:
+  Enabled:         false
+  AcrossEmptyLines: false
+  AcrossComments:  false
+  AlignCompound:   false
+  AlignFunctionPointers: false
+  PadOperators:    false
+AlignEscapedNewlines: Left
+AlignOperands:   AlignAfterOperator
+##
+## clang-format 14
+##
+##   AlignTrailingComments: true
+##
+AlignTrailingComments:
+  Kind:            Always
+  OverEmptyLines:  0
+##
+## TODO(tgm): test 'false'
+##
+## Result: false results in putting ALL arguments on their own lines,
+## which takes too much space!
+##
+AllowAllArgumentsOnNextLine: true
+##
+## Deprecated (but kept)
+##
+AllowAllConstructorInitializersOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowBreakBeforeNoexceptSpecifier: Never
+AllowShortBlocksOnASingleLine: Always
+AllowShortCaseExpressionOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortCompoundRequirementOnASingleLine: true
+AllowShortEnumsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: All
+##
+## Values:
+##
+##   AllowShortIfStatementsOnASingleLine: WithoutElse
+##   AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+##   AllowShortIfStatementsOnASingleLine: Never
+##
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: false
+AlwaysBreakTemplateDeclarations: Yes
+AttributeMacros:
+  - __capability
+BinPackArguments: false
+BinPackParameters: false
+BitFieldColonSpacing: Both
+##
+## NOGE(tgm): BraceWrapping is used when BreakBeforeBraces is Custom
+##
+BraceWrapping:
+  AfterCaseLabel:  false
+  AfterClass:      false
+  AfterControlStatement: Never
+  AfterEnum:       false
+  AfterExternBlock: false
+  AfterFunction:   false
+  AfterNamespace:  false
+  AfterObjCDeclaration: false
+  AfterStruct:     false
+  AfterUnion:      false
+  BeforeCatch:     true
+  BeforeElse:      true
+  BeforeLambdaBody: false
+  BeforeWhile:     false
+  IndentBraces:    false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+##
+## If unsed ContinuationIndentWidth is used
+##
+## BracedInitializerIndentWidth: 2
+##
+BreakAdjacentStringLiterals: true
+##
+## Never is default
+##
+##   BreakAfterAttributes: Never
+##
+BreakAfterAttributes: Always
+##
+## Default value of:
+##
+## BreakAfterJavaFieldAnnotations
+##
+## is false.
+##
+BreakAfterJavaFieldAnnotations: true
+BreakAfterReturnType: None
+##
+## currently used only for JSON formatting
+##
+BreakArrays:     true
+BreakBeforeBinaryOperators: None
+BreakBeforeConceptDeclarations: Always
+BreakBeforeBraces: Custom
+BreakBeforeInlineASMColon: OnlyMultiline
+##
+## clang-format 14
+##
+##   BreakBeforeInheritanceComma: false
+##
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: BeforeComma
+BreakFunctionDefinitionParameters: false
+##
+## clang-format 14
+##
+## BreakConstructorInitializersBeforeComma: false
+##
+BreakInheritanceList: BeforeColon
+BreakStringLiterals: true
+BreakTemplateDeclarations: Yes
+ColumnLimit:     79
+##
+## NOTE(tgm)
+##   - IWYU pragma was default
+##   - NOLINT marks info for clang's static analysis
+##   - ! [.*] are doxygen snippets' definitions
+##   - @snippet are doxygen snippets' usage
+##
+CommentPragmas:  '(^ IWYU pragma:|^.*NOLINT.*|/! \[.*\]|.*@snippet.*)'
+CompactNamespaces: false
+##
+## ConstructorInitializerAllOnOneLineOrOnePerLine is deprecated, see
+##
+##   PackConstructorInitializers
+##
+## ConstructorInitializerAllOnOneLineOrOnePerLine: true
+##
+ConstructorInitializerIndentWidth: 0
+ContinuationIndentWidth: 4
+Cpp11BracedListStyle: true
+##
+## If DeriveLineEnding is true, then it uses CRLF if they're dominant
+## in a file
+##
+## It's also deprecated, see:
+##
+##   LineEnding
+##
+## DeriveLineEnding: true
+##
+DerivePointerAlignment: false
+DisableFormat:   false
+EmptyLineAfterAccessModifier: Never
+EmptyLineBeforeAccessModifier: LogicalBlock
+ExperimentalAutoDetectBinPacking: false
+FixNamespaceComments: true
+ForEachMacros:
+  - foreach
+  - Q_FOREACH
+  - BOOST_FOREACH
+IfMacros:
+  - KJ_IF_MAYBE
+IncludeBlocks:   Preserve
+IncludeCategories:
+  - Regex:           '^"(llvm|llvm-c|clang|clang-c)/'
+    Priority:        2
+    SortPriority:    0
+    CaseSensitive:   false
+  - Regex:           '^(<|"(gtest|gmock|isl|json)/)'
+    Priority:        3
+    SortPriority:    0
+    CaseSensitive:   false
+  - Regex:           '.*'
+    Priority:        1
+    SortPriority:    0
+    CaseSensitive:   false
+IncludeIsMainRegex: '(.test)?$'
+IncludeIsMainSourceRegex: ''
+IndentAccessModifiers: false
+IndentCaseBlocks: false
+IndentCaseLabels: false
+IndentExternBlock: Indent
+IndentGotoLabels: true
+IndentPPDirectives: None
+##
+## clang-format 14
+##
+## Starting from v 15 it's named:
+##
+##   IndentRequiresClause
+##
+## IndentRequires: false
+##
+IndentRequiresClause: false
+IndentWidth:     4
+IndentWrappedFunctionNames: false
+InsertBraces:    true
+InsertNewlineAtEOF: true
+##
+## Inserting trailing commas is supported in javascript as of clang
+## format 14, and it is still supported in clang-format 19.
+##
+## Possible values: None or Wrapped
+##
+InsertTrailingCommas: Wrapped
+IntegerLiteralSeparator:
+  ##
+  ## TODO(tgm):
+  ##
+  ## Test IntegerLiteralSeparator
+  ##
+  ##   Binary:          4
+  ##   BinaryMinDigits: 5
+  ##   Decimal:         3
+  ##   DecimalMinDigits: 4
+  ##   Hex:             4
+  ##   HexMinDigits:    5
+  ##
+  Binary:          0
+  BinaryMinDigits: 0
+  Decimal:         0
+  DecimalMinDigits: 0
+  Hex:             0
+  HexMinDigits:    0
+# JavaImportGroups: ...
+JavaScriptQuotes: Leave
+JavaScriptWrapImports: true
+KeepEmptyLines:
+  AtEndOfFile:     false
+  AtStartOfBlock:  true
+  AtStartOfFile:   true
+LambdaBodyIndentation: Signature
+##
+## LineEnding:      DeriveLF
+##
+LineEnding:      LF
+MacroBlockBegin: ''
+MacroBlockEnd:   ''
+Macros:
+MainIncludeChar: Quote
+MaxEmptyLinesToKeep: 6
+NamespaceIndentation: None
+NamespaceMacros:
+ObjCBinPackProtocolList: Auto
+ObjCBlockIndentWidth: 2
+ObjCBreakBeforeNestedBlockParam: true
+ObjCSpaceAfterProperty: false
+ObjCSpaceBeforeProtocolList: true
+PackConstructorInitializers: Never
+## TODO(tgm): Review penalties!
+##
+## Originally, were:
+##
+##   PenaltyBreakAssignment: 2
+##   PenaltyBreakBeforeFirstCallParameter: 19
+##   PenaltyBreakComment: 300
+##   PenaltyBreakFirstLessLess: 120
+##   PenaltyBreakOpenParenthesis: 1
+##   PenaltyBreakScopeResolution: <Unavailable-eralier>!
+##   PenaltyBreakString: 1000
+##   PenaltyBreakTemplateDeclaration: 10
+##   PenaltyExcessCharacter: 100
+##   PenaltyIndentedWhitespace: 0
+##   PenaltyReturnTypeOnItsOwnLine: 60
+##
+## NOTE(tgm): Starting at 141 lines are broken more:
+##
+##   PenaltyExcessCharacter: 141
+##
+PenaltyBreakAssignment: 2
+PenaltyBreakBeforeFirstCallParameter: 19
+PenaltyBreakComment: 300
+PenaltyBreakFirstLessLess: 120
+PenaltyBreakOpenParenthesis: 1
+PenaltyBreakScopeResolution: 500
+PenaltyBreakString: 1000
+PenaltyBreakTemplateDeclaration: 10
+PenaltyExcessCharacter: 100
+PenaltyIndentedWhitespace: 0
+PenaltyReturnTypeOnItsOwnLine: 60
+PointerAlignment: Left
+##
+## PPIndentWidth: 0
+##
+PPIndentWidth:   0
+QualifierAlignment: Custom
+QualifierOrder:
+  - friend
+  - static
+  - inline
+  - constexpr
+  - restrict
+  - type
+  - const
+  - volatile
+ReferenceAlignment: Pointer
+ReflowComments:  true
+RemoveBracesLLVM: false
+RemoveParentheses: Leave
+RemoveSemicolon: false
+RequiresClausePosition: OwnLine
+RequiresExpressionIndentation: OuterScope
+##
+## Leave is (sic!) better than Always (tested!)
+##
+SeparateDefinitionBlocks: Leave
+ShortNamespaceLines: 0
+SkipMacroDefinitionBody: false
+SortIncludes:    CaseSensitive
+SortJavaStaticImport: Before
+SortUsingDeclarations: LexicographicNumeric
+SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: false
+SpaceAroundPointerQualifiers: Default
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCaseColon: false
+SpaceBeforeCpp11BracedList: false
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeJsonColon: false
+##
+## SpaceBeforeParens: Never
+##
+SpaceBeforeParens: Custom
+SpaceBeforeParensOptions:
+  AfterControlStatements: false
+  AfterForeachMacros: false
+  AfterFunctionDefinitionName: false
+  AfterFunctionDeclarationName: false
+  AfterIfMacros:   false
+  AfterOverloadedOperator: false
+  AfterPlacementOperator: true
+  AfterRequiresInClause: false
+  AfterRequiresInExpression: false
+  BeforeNonEmptyParentheses: false
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeSquareBrackets: false
+SpaceInEmptyBlock: true
+SpaceInEmptyParentheses: false
+SpacesBeforeTrailingComments: 1
+SpacesInAngles:  Never
+## Deprecated, see SpacesInParensOptions
+##
+## SpacesInCStyleCastParentheses: false
+##
+##
+## Deprecated, see SpacesInParensOptions
+##
+##   SpacesInConditionalStatement: false
+SpacesInContainerLiterals: true
+SpacesInLineCommentPrefix:
+  Minimum:         1
+  Maximum:         -1
+SpacesInParens:  Never
+SpacesInParensOptions:
+  ExceptDoubleParentheses: false
+  InCStyleCasts:   false
+  InConditionalStatements: false
+  InEmptyParentheses: false
+  Other:           false
+##
+## Deprecated, see SpacesInParensOptions
+##
+## SpacesInParentheses: false
+##
+SpacesInSquareBrackets: false
+##
+## TODO(tgm): Compare c++17 and Latest!
+##
+## Standard:        c++17
+##
+Standard:        Latest
+StatementAttributeLikeMacros:
+  - Q_EMIT
+StatementMacros:
+  - Q_UNUSED
+  - QT_REQUIRE_VERSION
+TableGenBreakInsideDAGArg: DontBreak
+TabWidth:        8
+##
+## Deprecated, see LineEnding
+##
+##   UseCRLF:         false
+##
+UseTab:          Never
+VerilogBreakBetweenInstancePorts: true
+WhitespaceSensitiveMacros:
+  - STRINGIZE
+  - PP_STRINGIZE
+  - BOOST_PP_STRINGIZE
+  - NS_SWIFT_NAME
+  - CF_SWIFT_NAME
+...
+
