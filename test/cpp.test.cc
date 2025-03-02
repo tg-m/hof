@@ -17,7 +17,7 @@
 
 
 #include <exception>
-#include <iostream>
+// #include <iostream>
 #include <string>
 
 
@@ -36,7 +36,12 @@ TEST_F(CppTest, DISABLED_test) {}
 
 TEST_F(CppTest, std_string_with_null_pointer) {
     const char* ptr = nullptr;
-    ASSERT_THROW(std::string s{ptr}, std::exception);
+
+    // We especially want to catch this exception.
+    //
+    // NOLINTBEGIN(clang-analyzer-cplusplus.StringChecker)
+    ASSERT_THROW(std::string{ptr}, std::exception);
+    // NOLINTEND(clang-analyzer-cplusplus.StringChecker)
 }
 
 

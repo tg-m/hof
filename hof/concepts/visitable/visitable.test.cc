@@ -13,16 +13,17 @@
 #endif /* __clang__ */
 
 
-#include <concepts>
-#include <memory>
+// #include <concepts>
+// #include <memory>
 
 #include "gtest-wrapper.hh"
 
 #include "visitable.hh"
 
 
+namespace {
 template<typename T, hof::Visitable<T> Visit_f>
-hof::visit_result_t consume(T const& data, Visit_f const& visit) {
+static hof::visit_result_t consume(T const& data, Visit_f const& visit) {
     return visit(data);
 }
 
@@ -33,6 +34,7 @@ public:
     virtual void TearDown() override {
     }
 };
+} /* namespace */
 
 TEST_F(visitable_Test, fixture_self_test) { }
 TEST_F(visitable_Test, DISABLED_test) { }
@@ -57,3 +59,4 @@ TEST_F(visitable_Test, basic_concept_test) {
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif /* __clang__ */
+

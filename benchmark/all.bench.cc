@@ -13,10 +13,12 @@
 
 
 
+#include <cstdint>
 
-#include <vector>
 
+#include <algorithm>
 #include <random>
+#include <vector>
 
 
 
@@ -36,14 +38,22 @@
 
 
 
-static void random_distribution_mersenne_twister_benchmark(benchmark::State& state) {
-    // std::random_device rd{};  //Will be used to obtain a seed for the random number engine
-    std::mt19937 gen(std::random_device{}()); //Standard mersenne_twister_engine seeded with rd()
-    std::uniform_int_distribution<uint8_t> dis(0, 255);
+namespace {
+
+static void
+random_distribution_mersenne_twister_benchmark(benchmark::State& state) {
+    // Will be used to obtain a seed for the random number engine
+    // std::random_device rd{};
+
+
+    // Standard mersenne_twister_engine seeded with rd()
+    std::mt19937 gen(std::random_device{}());
+
+    std::uniform_int_distribution<std::uint8_t> dis(0, 255);
 
 
     for(auto _ : state) {
-        for(int64_t i = 0; state.range(0) > i; ++i) {
+        for(std::int64_t i = 0; state.range(0) > i; ++i) {
             dis(gen);
         }
     }
@@ -54,9 +64,17 @@ static void random_distribution_mersenne_twister_benchmark(benchmark::State& sta
     );
     state.SetComplexityN(state.range(0));
 }
-BENCHMARK(random_distribution_mersenne_twister_benchmark)->RangeMultiplier(2)->Range(64, 2048)->Complexity(benchmark::oN)->ComputeStatistics("max", [](const std::vector<double>& v) -> double {
-    return *(std::max_element(std::begin(v), std::end(v)));
-});
+
+} /* namespace */
+
+
+BENCHMARK(random_distribution_mersenne_twister_benchmark)
+    ->RangeMultiplier(2)
+    ->Range(64, 2048)
+    ->Complexity(benchmark::oN)
+    ->ComputeStatistics("max", [](std::vector<double> const& v) -> double {
+        return *(std::ranges::max_element(v));
+    });
 
 
 

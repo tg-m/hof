@@ -10,11 +10,19 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wweak-vtables"
 #pragma clang diagnostic ignored "-Wglobal-constructors"
+#pragma clang diagnostic ignored "-Wreserved-identifier"
+#pragma clang diagnostic ignored "-Wexit-time-destructors"
 #endif /* __clang__ */
 
-#include <memory>
+#include <cmath>
+#include <cstdint>
+
+
+#include <algorithm> // std::min
+// #include <memory>
 #include <unordered_map>
-#include <utility>
+#include <utility> // std::pair
+#include <vector>
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>
@@ -22,9 +30,25 @@
 
 #include "gtest-wrapper.hh"
 
-
-
 // #include "common/debug.hh"
+
+
+
+// clang-tidy no lints -- start
+//
+// Some functions are explicitly recursive!
+// NOLINTBEGIN(misc-no-recursion)
+//
+// Ignore warning for functions that use double underscore ('__')
+// NOLINTBEGIN(cert-dcl37-c)
+// NOLINTBEGIN(cert-dcl51-cpp)
+// NOLINTBEGIN(bugprone-reserved-identifier)
+//
+// Because!
+// NOLINTBEGIN(readability-avoid-nested-conditional-operator)
+//
+// clang-tidy no lints -- end
+
 
 class dynamic_programming_Test : public testing::Test {
 public:
@@ -36,6 +60,9 @@ TEST_F(dynamic_programming_Test, fixture_self_test) { }
 TEST_F(dynamic_programming_Test, DISABLED_test) { }
 
 namespace {
+
+
+// This is **explicitly** a recursive imlementation!
 static std::uint64_t fibonacci_recursive(std::uint64_t const n) {
     // if(0 == n) {
     //     return 0;
@@ -48,6 +75,8 @@ static std::uint64_t fibonacci_recursive(std::uint64_t const n) {
     return 3 > n ? (1 + n) / 2
                  : fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2);
 }
+
+
 static std::uint64_t fibonacci_iterative_with_cache(std::uint64_t const n) {
     static std::vector<std::uint64_t> results{0, 1, 1, 2};
     while(results.size() <= n) {
@@ -56,6 +85,7 @@ static std::uint64_t fibonacci_iterative_with_cache(std::uint64_t const n) {
     }
     return results[n];
 }
+
 
 static std::uint64_t tribonacci_recursive(std::uint64_t const n) {
     // 0, 1, 1, 2
@@ -74,6 +104,8 @@ static std::uint64_t tribonacci_recursive(std::uint64_t const n) {
                  : tribonacci_recursive(n - 1) + tribonacci_recursive(n - 2) +
                        tribonacci_recursive(n - 3);
 }
+
+
 
 static std::uint64_t tribonacci_iterative_with_cache(std::uint64_t const n) {
     static std::vector<std::uint64_t> results{0, 1, 1, 2, 4, 7};
@@ -164,19 +196,36 @@ static bool is_sum_possible(
     if(end_lookup != it) {
         return it->second;
     }
-    for(auto const num : numbers) {
-        if(num <= sum) {
+    if constexpr(false) {
+        for(auto const num : numbers) {
+            if(num <= sum) {
+                auto const diff = sum - num;
+                if(is_sum_possible(numbers, diff, lookup)) {
+                    return true;
+                }
+                (*lookup)[diff] = false;
+                // auto const is_diff = is_sum_possible(numbers, diff, lookup);
+                // (*lookup)[diff] = is_diff;
+                // if(is_diff) {
+                //     return true;
+                // }
+            }
+        }
+    }
+    else {
+        return std::ranges::any_of(numbers, [&](std::uint32_t const num) {
+            if(num > sum) {
+                return false;
+            }
+
             auto const diff = sum - num;
             if(is_sum_possible(numbers, diff, lookup)) {
                 return true;
             }
             (*lookup)[diff] = false;
-            // auto const is_diff = is_sum_possible(numbers, diff, lookup);
-            // (*lookup)[diff] = is_diff;
-            // if(is_diff) {
-            //     return true;
-            // }
-        }
+
+            return false;
+        });
     }
     return false;
 }
@@ -698,7 +747,7 @@ static std::uint32_t count_paths_hashmap_as_helper(
     char const W
 ) {
 
-    std::uint64_t const key = (row << 32) + col;
+    std::uint64_t const key = (row << 32U) + col;
 
     auto const it = memo->find(key);
     if(std::end(*memo) != it) {
@@ -777,7 +826,7 @@ count_paths_hashmap_as_helper(std::vector<std::vector<char>> const& grid) {
     std::unordered_map<std::uint64_t, std::uint32_t> memo{};
 
 
-    std::uint64_t const key_base = ((all_rows - 1) << 32) + all_cols - 1;
+    std::uint64_t const key_base = ((all_rows - 1) << 32U) + all_cols - 1;
     memo[key_base] = W == grid[all_rows - 1][all_cols - 1] ? 0 : 1;
 
     auto const result =
@@ -1090,7 +1139,7 @@ static std::uint32_t count_max_path_sum_2d_array_as_memo(
         static_cast<std::int32_t>(grid[rows - 1][cols - 1]);
 
 
-    std::uint32_t const result = static_cast<std::uint32_t>(
+    auto const result = static_cast<std::uint32_t>(
         details::count_max_path_sum_2d_array_as_memo(0, 0, grid, &memo)
     );
 
@@ -1319,7 +1368,7 @@ find_min_number_of_summing_perfect_squares__helper_hashmap(
     //  n = 1^2 + 1^2 + ... + 1^2
     //
     std::uint32_t result = 1 + n;
-    std::uint32_t cur = static_cast<std::uint32_t>(std::sqrt(n));
+    auto cur = static_cast<std::uint32_t>(std::sqrt(n));
     std::uint32_t cur_square = cur * cur;
 
     if(n == cur_square) {
@@ -1491,7 +1540,7 @@ static std::vector<std::uint32_t> find_summing_perfect_squares(
         return it->second;
     }
 
-    std::uint32_t cur = static_cast<std::uint32_t>(std::sqrt(n));
+    auto cur = static_cast<std::uint32_t>(std::sqrt(n));
     std::uint32_t cur_square = cur * cur;
     std::vector<std::uint32_t> result(n, 1);
 
@@ -1633,6 +1682,24 @@ TEST_F(dynamic_programming_Test, find_summing_perfect_squares___v_0007) {
 
     ASSERT_EQ(expected, actual);
 }
+
+
+
+
+
+// clang-tidy no lints -- start
+//
+// NOLINTEND(readability-avoid-nested-conditional-operator)
+//
+//
+// NOLINTEND(bugprone-reserved-identifier)
+// NOLINTEND(cert-dcl51-cpp)
+// NOLINTEND(cert-dcl37-c)
+//
+//
+// NOLINTEND(misc-no-recursion)
+//
+// clang-tidy no lints -- end
 
 #ifdef __clang__
 #pragma clang diagnostic pop

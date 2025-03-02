@@ -12,10 +12,21 @@
 #pragma clang diagnostic ignored "-Wglobal-constructors"
 #endif /* __clang__ */
 
+#include <cstdint>
+
+
+#include <algorithm>
 #include <memory>
+#include <string>
+#include <tuple>
+#include <unordered_set>
+#include <utility>
+#include <vector>
+
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>
+
 
 
 #include "gtest-wrapper.hh"
@@ -23,7 +34,10 @@
 #include "graph.hh"
 
 
+
 // #include "common/debug.hh"
+
+#include "concepts/visitable/visitable.hh"
 
 class graph_Test : public testing::Test {
 public:
@@ -38,6 +52,7 @@ TEST_F(graph_Test, 2nd_dtor) {
     { std::make_shared<hof::graph>(); }
     {
         hof::graph const* ptr = new hof::graph();
+        // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
         delete ptr;
     }
 }
@@ -52,7 +67,7 @@ TEST_F(graph_Test, yt__example__copy_from_old_main) {
 
     {
         using elem_t = std::string;
-        hof::adj_list_t<elem_t> adj_list{
+        hof::adj_list_t<elem_t> const adj_list{
             {"a", {"b", "c", "f"}},
             {"b", {"d"}},
             {"c", {"e"}},
@@ -473,6 +488,7 @@ TEST_F(graph_Test, yt__example__shortest_path_length___char___4) {
 
 }
 
+namespace {
 static std::pair<char, char> get_water_land_descriptors() {
     return std::make_pair('W', 'L');
 }
@@ -543,8 +559,10 @@ static std::uint32_t island_count(std::vector<std::vector<char>> const& grid) {
     std::vector<std::vector<bool>> visited = [&] {
         std::vector<std::vector<bool>> result{};
 
+        result.reserve(grid.size());
         for(auto const& row : grid) {
-            result.emplace_back(std::vector<bool>(row.size(), false));
+            // result.emplace_back(std::vector<bool>(row.size(), false));
+            result.emplace_back(row.size(), false);
         }
 
         return result;
@@ -575,6 +593,7 @@ static std::uint32_t island_count(std::vector<std::vector<char>> const& grid) {
 
     return result;
 }
+} /* namespace */
 
 TEST_F(graph_Test, yt__example__island_count_problem___x) {
     // '_' and 'X' are more readable
@@ -771,6 +790,7 @@ TEST_F(graph_Test, yt__example__island_count_problem___mine_CONCENTRIC) {
     ASSERT_EQ(expected, actual);
 }
 
+namespace {
 static std::pair<std::uint32_t, std::uint32_t>
 minmax_island_size(std::vector<std::vector<char>> const& grid) {
     auto const [W, L] = get_water_land_descriptors();
@@ -846,8 +866,10 @@ minmax_island_size(std::vector<std::vector<char>> const& grid) {
 
     visited_t visited = [&] {
         visited_t result{};
+        result.reserve(grid.size());
         for(auto const& row : grid) {
-            result.push_back(std::vector<bool>(row.size(), false));
+            // result.emplace_back(std::vector<bool>(row.size(), false));
+            result.emplace_back(row.size(), false);
         }
         return result;
     }();
@@ -881,6 +903,7 @@ minmax_island_size(std::vector<std::vector<char>> const& grid) {
 
     return std::make_pair(min, max);
 }
+} /* namespace */
 TEST_F(graph_Test, yt__example__island_min_max_count____0000) {
     // '_' and 'X' are more readable
     // '_' - water

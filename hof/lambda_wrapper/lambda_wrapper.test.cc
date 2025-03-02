@@ -17,6 +17,9 @@
 #endif /* __clang__ */
 
 
+#include <type_traits>
+
+
 #include "gtest-wrapper.hh"
 
 
@@ -34,7 +37,7 @@ TEST_F(lambda_wrapper_test, DISABLED_test) {}
 
 TEST_F(lambda_wrapper_test, create_lambda_and_call_it_with_wrapper) {
     auto const expected = [] { return "wowaoef"; };
-    hof::lambda_wrapper<std::decay_t<decltype(expected)>> actual(expected);
+    hof::lambda_wrapper<std::decay_t<decltype(expected)>> const actual(expected);
 
     ASSERT_EQ(expected(), actual());
 }
@@ -42,7 +45,7 @@ TEST_F(lambda_wrapper_test, create_lambda_and_call_it_with_wrapper) {
 
 TEST_F(lambda_wrapper_test, create_lambda_with_param_and_call_it_with_wrapper) {
     auto const expected = [](int i) { return 2 * i; };
-    hof::lambda_wrapper<std::decay_t<decltype(expected)>> actual(expected);
+    hof::lambda_wrapper<std::decay_t<decltype(expected)>> const actual(expected);
 
     ASSERT_EQ(expected(3), actual(3));
 }
