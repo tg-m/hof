@@ -216,7 +216,7 @@ message(STATUS "CXX_COMPILE_OPTIONS: ${CXX_COMPILE_OPTIONS}")
 set(f_index 26)
 foreach(flag
         -g
-        -std=c++11 -std=c++14 -std=c++17 -std=c++20 -std=c++23
+        -std=c++11 -std=c++14 -std=c++17 -std=c++20 -std=c++23 -std=c++26
         ${CXX_COMPILE_OPTIONS}
     )
     # message(STATUS "flag: ${flag}")

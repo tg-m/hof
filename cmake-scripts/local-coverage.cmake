@@ -7,7 +7,7 @@ include(cxx_warnings.cmake)
 
 
 set(CXX_COMPILE_OPTIONS
-    "-std=c++23"
+    "-std=c++26"
     "-O0"
     "-g"
     "--coverage"

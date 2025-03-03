@@ -38,7 +38,7 @@ set(ALL_CXX_WARNING_FLAGS
   "-Wno-c++98-compat-pedantic"
   ## "-fcomment-block-commands=parblock,snippet,endparblock"
   ## "-fsafe-buffer-usage-suggestions"
-  "-std=c++23"
+  "-std=c++26"
   # "-Werror"
   # "--system-header-prefix=up_api_include/"
   # "--system-header-prefix=nanopb_include/"
