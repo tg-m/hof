@@ -30,17 +30,21 @@
   * [Fuzzing](#fuzzing)
   * [CI/CD (Jenkins)](#cicd-jenkins)
 
-# Intro
-This mini-"library's" goal is to provide an overview of C++ familiarity
-during hiring / interviewing process. Some parts are over engineered on
-purpose, and some are not-optimised for clarity. Originally, it was
-written with `C++17` in mind and only recently was (partially) ported to
-`C++26`. It contains mainly simple CS concepts, e.g.:
-- graphs,
-- linked lists,
-- example of simple problems solved with dynamic programming (see
-  `hof/dynamic_programming/dynamic_programming.test.cc`),
-- etc...
+# Introduction
+- The goal of this micro-"library" is to provide an overview of C++
+  familiarity / proficiency during the hiring / interview process. Some
+  parts are intentionally over-engineered, while others prioritise
+  clarity over optimisation.
+- If you stumbled upon it on your own, feel free to be inspired -- or contrary.
+- This is by no means production code!
+- Originally written with `C++17` in mind, it has only recently been
+  (partially) ported to ~~`C++20`~~, ~~`C++23`~~, `C++26`.
+- It primarily contains some rudimentary CS concepts, e.g.:
+  - graphs,
+  - linked lists,
+  - example of simple problems solved with dynamic programming (see
+    `hof/dynamic_programming/dynamic_programming.test.cc`),
+  - etc...
 
 ## Build & test
 ```bash
@@ -49,7 +53,7 @@ cd build
 cmake -C ../cmake-scripts/local.cmake ..
 make -j
 test/alltests-hof
-## or
+## or statically linked:
 test/alltests-hof-static
 ```
 
