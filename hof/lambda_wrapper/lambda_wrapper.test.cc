@@ -1,6 +1,6 @@
 /**
  * @file
- * Copyright (C) 2019-present Tomasz G. Markiewicz (software.tgm@gmail.com)
+ * Copyright (C) 2019-present Tomasz G. Markiewicz (software dot tgm at gmail dot com)
  *
  * Created on Feb 11, 2020
  *
