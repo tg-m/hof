@@ -8,7 +8,7 @@ include(cxx_warnings.cmake)
 
 
 set(CXX_COMPILE_OPTIONS
-    "-std=c++20"
+    "-std=c++23"
     "-O3"
     "${ALL_CXX_WARNING_FLAGS}"
     ##

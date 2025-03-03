@@ -38,7 +38,7 @@ set(ALL_CXX_WARNING_FLAGS
   "-Wno-c++98-c++11-c++14-compat"
   "-Wno-padded"
   "-Wno-c++98-compat-pedantic"
-  "-std=c++20"
+  "-std=c++23"
   # "-Werror"
   # "--system-header-prefix=up_api_include/"
   # "--system-header-prefix=nanopb_include/"

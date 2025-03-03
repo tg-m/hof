@@ -38,7 +38,7 @@ set(ALL_CXX_WARNING_FLAGS
   "-Wno-c++98-compat-pedantic"
   ## "-fcomment-block-commands=parblock,snippet,endparblock"
   ## "-fsafe-buffer-usage-suggestions"
-  "-std=c++20"
+  "-std=c++23"
   # "-Werror"
   # "--system-header-prefix=up_api_include/"
   # "--system-header-prefix=nanopb_include/"
@@ -92,7 +92,7 @@ set(build_test True)
 
 set(CMAKE_CXX_CLANG_TIDY
     "clang-tidy"
-    "--extra-arg=-std=c++20"
+    "--extra-arg=-std=c++23"
     "--enable-check-profile"
     "--config-file=${CMAKE_SOURCE_DIR}/clang-tidy/tests.yaml"
     # "--fix"

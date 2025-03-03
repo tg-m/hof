@@ -35,7 +35,7 @@ This mini-"library's" goal is to provide an overview of C++ familiarity
 during hiring / interviewing process. Some parts are over engineered on
 purpose, and some are not-optimised for clarity. Originally, it was
 written with `C++17` in mind and only recently was (partially) ported to
-`C++20`. It contains mainly simple CS concepts, e.g.:
+`C++23`. It contains mainly simple CS concepts, e.g.:
 - graphs,
 - linked lists,
 - example of simple problems solved with dynamic programming (see
