@@ -1,6 +1,8 @@
-set(CMAKE_MINIMUM_VERSION 3.22) ## Probably 3.8 would be enough...
+## Probably 3.8 would be enough...
+    set(CMAKE_MINIMUM_VERSION 3.22)
 
 cmake_minimum_required(VERSION ${CMAKE_MINIMUM_VERSION})
+
 
 ## # Something is broken in cmake 3.10.2
 ## # and GoogleTest cannot be used properly
@@ -187,6 +189,8 @@ message(STATUS
 )
 # message(FATAL_ERROR "STOP!")
 
+
+
 set(COVERAGE_EXTENSION coverage)
 option(BUILD_COVERAGE
     "Add options to bulid libraries and executable(s) with tracking test coverage"
@@ -209,10 +213,10 @@ message(STATUS
 # CXX_COMPILE_OPTIONS must be set by an appropriate cmake script
 include(CheckCXXCompilerFlag)
 message(STATUS "CXX_COMPILE_OPTIONS: ${CXX_COMPILE_OPTIONS}")
-set(f_index 16)
+set(f_index 26)
 foreach(flag
         -g
-        -std=c++11 -std=c++14 -std=c++17 -std=c++20 -std=c++23
+        -std=c++11 -std=c++14 -std=c++17 -std=c++20 -std=c++23 -std=c++26
         ${CXX_COMPILE_OPTIONS}
     )
     # message(STATUS "flag: ${flag}")
@@ -270,7 +274,7 @@ find_package(benchmark REQUIRED VERSION 1.5.0)
 message(STATUS "ENV_USER: $ENV{USER}")
 message(STATUS "hof_INCLUDE_DIRS: ${hof_INCLUDE_DIRS}")
 
-find_package(LIBGFLAGS REQUIRED)
+# find_package(LIBGFLAGS REQUIRED)
 
 #set(CMAKE_THREAD_PREFER_PTHREAD ON)
 
@@ -282,8 +286,14 @@ find_package(LIBGFLAGS REQUIRED)
 #endif()
 
 # After all find_package
-# set(HOF_TARGET_LINK_LIBRARIES "zcomm" "innolot-aes-cipher")
-# set(HOF_TARGET_LINK_LIBRARIES_STATIC "zcomm-static" "innolot-aes-cipher-static")
+# set(HOF_TARGET_LINK_LIBRARIES
+#     "xcomm"
+#     "rf-aes-cipher"
+# )
+# set(HOF_TARGET_LINK_LIBRARIES_STATIC
+#     "xcomm-static"
+#     "rf-aes-cipher-static"
+# )
 
 
 
@@ -323,7 +333,11 @@ if(NOT DO_NOT_BUILD_BENCHMARKS)
 endif()
 
 
-configure_file("${CMAKE_SOURCE_DIR}/cmake_uninstall.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake" IMMEDIATE @ONLY)
+configure_file(
+    "${CMAKE_SOURCE_DIR}/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    IMMEDIATE @ONLY
+)
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 # print_all_variables_regex(
 #     "^(CMAKE_C_COMPILER_ID_PLATFORM_CONTENT|CMAKE_CXX_COMPILER_ID_PLATFORM_CONTENT).*"

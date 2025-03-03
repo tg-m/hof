@@ -409,7 +409,7 @@ static void print(adj_list_t<T> const& adj_list) {
 
 
 template<typename T>
-std::uint32_t count_disconnected_sub_graphs(adj_list_t<T> const& adj_list ) {
+std::uint32_t count_disconnected_sub_graphs(adj_list_t<T> const& adj_list) {
     std::unordered_set<T const*> nodes{};
     nodes.reserve(adj_list.size());
     for(auto const& elem : adj_list) {
@@ -432,7 +432,11 @@ std::uint32_t count_disconnected_sub_graphs(adj_list_t<T> const& adj_list ) {
 }
 
 template<graph_traversal_type_t graph_traversal_v, typename T>
-bool are_nodes_connected(adj_list_t<T> const& adj_list, T const& src, T const& dst) {
+bool are_nodes_connected(
+    adj_list_t<T> const& adj_list,
+    T const& src,
+    T const& dst
+) {
     bool result = false;
 
 
@@ -452,7 +456,11 @@ bool are_nodes_connected(adj_list_t<T> const& adj_list, T const& src, T const& d
 }
 
 template<typename T>
-std::int32_t shortest_path_length(adj_list_t<T> const& adj_list, T const& src, T const& dst) {
+std::int32_t shortest_path_length(
+    adj_list_t<T> const& adj_list,
+    T const& src,
+    T const& dst
+) {
     using it_t = typename adj_list_t<T>::const_iterator;
 
     auto const end_al = std::end(adj_list);

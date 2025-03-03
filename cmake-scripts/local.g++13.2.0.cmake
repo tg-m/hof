@@ -83,7 +83,8 @@ set(CXX_COMPILE_OPTIONS
     ##   "-Wno-strict-overflow"
     ##
     ##
-    CACHE INTERNAL "description"
+    CACHE INTERNAL
+    "C++ compile options / settings"
 )
 
 set(CONFIG_SCRIPT_PRELOADED

@@ -10,14 +10,18 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wweak-vtables"
 #pragma clang diagnostic ignored "-Wglobal-constructors"
+#pragma clang diagnostic ignored "-Wreserved-identifier"
 #endif /* __clang__ */
 
 #include <cstdint>
 
 
 #include <memory>
-#include <numeric>
-#include <type_traits>
+// #include <numeric>
+#include <ostream>     // std::ostream
+#include <type_traits> // std::is_nothrow_move_constructible_v
+#include <utility>     // std::move
+#include <vector>
 
 
 #include <fmt/core.h>
@@ -25,6 +29,8 @@
 #include "gtest-wrapper.hh"
 
 #include "linked_list.hh"
+
+#include "concepts/visitable/visitable.hh"
 
 // #include "common/debug.hh"
 
@@ -41,6 +47,7 @@ TEST_F(linked_list_Test, 2nd_dtor) {
     { std::make_shared<hof::linked_list<int>>(); }
     {
         hof::linked_list<int> const* ptr = new hof::linked_list<int>();
+        // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
         delete ptr;
     }
 }
@@ -48,9 +55,11 @@ TEST_F(linked_list_Test, 2nd_dtor) {
 
 TEST_F(linked_list_Test, basic_traversal___) {
     using elem_t = char;
+    // NOLINTBEGIN(modernize-use-designated-initializers)
     hof::linked_list<elem_t>::node a{'a', nullptr};
     hof::linked_list<elem_t>::node b{'b', nullptr};
     hof::linked_list<elem_t>::node c{'c', nullptr};
+    // NOLINTEND(modernize-use-designated-initializers)
 
     a.next = &b;
     b.next = &c;
@@ -75,7 +84,7 @@ private:
     static constexpr bool do_log_extra() { return false; }
 
 public:
-    container_t() noexcept(noexcept(T()))
+    explicit container_t() noexcept(noexcept(T()))
     : data() { }
     container_t(T const& a_data) noexcept(noexcept(T()))
     : data(a_data) {
@@ -85,7 +94,8 @@ public:
             );
         }
     }
-    container_t(T&& a_data) noexcept(std::is_nothrow_move_constructible_v<T>)
+    explicit container_t(T&& a_data
+    ) noexcept(std::is_nothrow_move_constructible_v<T>)
     : data(std::move(a_data)) {
         if constexpr(do_log() && do_log_extra()) {
             fmt::print(" > container_t::container_t(T&&).data = [{}]\n", data);
@@ -164,6 +174,7 @@ public:
     }
 
 
+    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
     T data;
 };
 } /* namespace */
@@ -180,9 +191,21 @@ TEST_F(linked_list_Test, create_and_add_elements) {
     };
 
     {
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpessimizing-move"
+#endif /* __clang__ */
+        //
+        // We want to use here sub-optimal (possimising) implementation,
+        // due to the code coverage!
+        //
         hof::linked_list<elem_t> ll{std::move(elem_t{'a'})};
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif /* __clang__ */
+
         ll.append('b');
-        ll.append(std::move(elem_t('c')));
+        ll.append(elem_t('c'));
         {
             auto const d = elem_t{'d'};
             ll.append(d);
@@ -201,7 +224,11 @@ TEST_F(linked_list_Test, create_and_add_elements) {
             auto j = elem_t{'j'};
             ll.append(i, std::move(j), 'k', elem_t{'l'});
             ASSERT_EQ('i', i.data);
+            // NOLINTBEGIN(bugprone-use-after-move)
+            // NOLINTBEGIN(hicpp-invalid-access-moved)
             ASSERT_EQ('\0', j.data); // We std::move-d j!
+            // NOLINTEND(hicpp-invalid-access-moved)
+            // NOLINTEND(bugprone-use-after-move)
         }
 
         ll.traverse(print);

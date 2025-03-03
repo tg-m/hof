@@ -7,7 +7,7 @@ include(cxx_warnings.cmake)
 
 
 set(CXX_COMPILE_OPTIONS
-    "-std=c++17"
+    "-std=c++26"
     "-O0"
     "-g"
     "--coverage"
@@ -15,7 +15,7 @@ set(CXX_COMPILE_OPTIONS
     "-ftest-coverage"
     "${ALL_CXX_WARNING_FLAGS}"
     CACHE INTERNAL
-    "description"
+    "C++ compile options / settings"
 )
 
 set(BUILD_COVERAGE ON CACHE INTERNAL "Build coverage")

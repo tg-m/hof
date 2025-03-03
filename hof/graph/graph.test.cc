@@ -12,10 +12,21 @@
 #pragma clang diagnostic ignored "-Wglobal-constructors"
 #endif /* __clang__ */
 
+#include <cstdint>
+
+
+#include <algorithm>
 #include <memory>
+#include <string>
+#include <tuple>
+#include <unordered_set>
+#include <utility>
+#include <vector>
+
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>
+
 
 
 #include "gtest-wrapper.hh"
@@ -23,7 +34,10 @@
 #include "graph.hh"
 
 
+
 // #include "common/debug.hh"
+
+#include "concepts/visitable/visitable.hh"
 
 class graph_Test : public testing::Test {
 public:
@@ -38,6 +52,7 @@ TEST_F(graph_Test, 2nd_dtor) {
     { std::make_shared<hof::graph>(); }
     {
         hof::graph const* ptr = new hof::graph();
+        // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
         delete ptr;
     }
 }
@@ -52,7 +67,7 @@ TEST_F(graph_Test, yt__example__copy_from_old_main) {
 
     {
         using elem_t = std::string;
-        hof::adj_list_t<elem_t> adj_list{
+        hof::adj_list_t<elem_t> const adj_list{
             {"a", {"b", "c", "f"}},
             {"b", {"d"}},
             {"c", {"e"}},
@@ -357,7 +372,7 @@ TEST_F(
         {4, {3, 2}},
     };
 
-    std::unordered_set<elem_t> nodes = [&]{
+    std::unordered_set<elem_t> nodes = [&] {
         std::unordered_set<elem_t> result{};
         result.reserve(adj_list.size());
         for(auto const& e : adj_list) {
@@ -455,24 +470,26 @@ TEST_F(graph_Test, yt__example__shortest_path_length___char___4) {
     using elem_t = char;
 
 
-    auto const adj_list = hof::edge_list_to_adj_list<hof::edge_connect_t::bidirectional, elem_t>({
-            {'a', 'c'},
-            {'a', 'b'},
-            {'c', 'b'},
-            {'c', 'd'},
-            {'b', 'd'},
-            {'e', 'd'},
-            {'g', 'g'},
-    });
+    auto const adj_list =
+        hof::edge_list_to_adj_list<hof::edge_connect_t::bidirectional, elem_t>(
+            {
+                {'a', 'c'},
+                {'a', 'b'},
+                {'c', 'b'},
+                {'c', 'd'},
+                {'b', 'd'},
+                {'e', 'd'},
+                {'g', 'g'},
+            }
+        );
 
 
     std::int32_t const expected = -1;
     std::int32_t const actual = hof::shortest_path_length(adj_list, 'b', 'g');
     ASSERT_EQ(expected, actual);
-
-
 }
 
+namespace {
 static std::pair<char, char> get_water_land_descriptors() {
     return std::make_pair('W', 'L');
 }
@@ -500,12 +517,15 @@ static std::uint32_t island_count(std::vector<std::vector<char>> const& grid) {
 
                 // fmt::print("inspecting: row, col: [{}][{}]\n", row, col);
 
-                if(true == (*visited)[row][col]) { continue; }
+                if(true == (*visited)[row][col]) {
+                    continue;
+                }
 
                 (*visited)[row][col] = true;
 
 
-                auto const neighbours = std::vector<std::pair<std::uint32_t, std::uint32_t>>{
+                auto const neighbours = std::vector<
+                    std::pair<std::uint32_t, std::uint32_t>>{
                     // INFO(tgm): We depend here on the fact that:
                     //
                     //              static_cast<std::uint32_t>(-1) = 2^32 - 1
@@ -536,15 +556,16 @@ static std::uint32_t island_count(std::vector<std::vector<char>> const& grid) {
                     }
                 }
             }
-
         };
 
 
     std::vector<std::vector<bool>> visited = [&] {
         std::vector<std::vector<bool>> result{};
 
+        result.reserve(grid.size());
         for(auto const& row : grid) {
-            result.emplace_back(std::vector<bool>(row.size(), false));
+            // result.emplace_back(std::vector<bool>(row.size(), false));
+            result.emplace_back(row.size(), false);
         }
 
         return result;
@@ -561,8 +582,12 @@ static std::uint32_t island_count(std::vector<std::vector<char>> const& grid) {
     for(std::uint32_t r = 0; grid.size() > r; ++r) {
         auto const& row = grid[r];
         for(std::uint32_t c = 0; row.size() > c; ++c) {
-            if(W == row[c]) { continue; }
-            if(true == visited[r][c]) { continue; }
+            if(W == row[c]) {
+                continue;
+            }
+            if(true == visited[r][c]) {
+                continue;
+            }
 
             fmt::print("traversing: (r, c:) [{}]\n", std::make_pair(r, c));
 
@@ -575,6 +600,7 @@ static std::uint32_t island_count(std::vector<std::vector<char>> const& grid) {
 
     return result;
 }
+} /* namespace */
 
 TEST_F(graph_Test, yt__example__island_count_problem___x) {
     // '_' and 'X' are more readable
@@ -771,6 +797,7 @@ TEST_F(graph_Test, yt__example__island_count_problem___mine_CONCENTRIC) {
     ASSERT_EQ(expected, actual);
 }
 
+namespace {
 static std::pair<std::uint32_t, std::uint32_t>
 minmax_island_size(std::vector<std::vector<char>> const& grid) {
     auto const [W, L] = get_water_land_descriptors();
@@ -846,8 +873,10 @@ minmax_island_size(std::vector<std::vector<char>> const& grid) {
 
     visited_t visited = [&] {
         visited_t result{};
+        result.reserve(grid.size());
         for(auto const& row : grid) {
-            result.push_back(std::vector<bool>(row.size(), false));
+            // result.emplace_back(std::vector<bool>(row.size(), false));
+            result.emplace_back(row.size(), false);
         }
         return result;
     }();
@@ -877,10 +906,13 @@ minmax_island_size(std::vector<std::vector<char>> const& grid) {
         }
     }
 
-    if(0 == max) { min = 0; }
+    if(0 == max) {
+        min = 0;
+    }
 
     return std::make_pair(min, max);
 }
+} /* namespace */
 TEST_F(graph_Test, yt__example__island_min_max_count____0000) {
     // '_' and 'X' are more readable
     // '_' - water

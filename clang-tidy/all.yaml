@@ -1,0 +1,121 @@
+---
+## One empty line after each comment ('#') is mandatory!
+Checks: >
+  -*,
+  bugprone-suspicious-include,
+  misc-header-include-cycle,
+  llvm-include-order,
+  portability-restrict-system-includes,
+  readability-duplicate-include,
+  abseil-string-find-startswith,
+  bugprone-*,
+  cert-*,
+  clang-analyzer-*,
+  cppcoreguidelines-*,
+  google-*,
+  -google-readability-avoid-underscore-in-googletest-name,
+  hicpp-*,
+  llvm-*,
+  misc-*,
+  modernize-*,
+  -modernize-use-trailing-return-type,
+  -modernize-concat-nested-namespaces,
+  performance-*,
+  readability-*,
+  -readability-static-definition-in-anonymous-namespace,
+  -readability-simplify-boolean-expr,
+
+
+  ##
+  ## ## Warns about ids shorter than 3 chars
+  ## -readability-identifier-length,
+  ##
+
+  portability-*,
+
+
+  ##
+  ## bugprone-easily-swappable-parameters.MinimumLength=3,
+  ## Add bugprone... again!
+  ##
+
+  -bugprone-easily-swappable-parameters,
+
+
+  ##
+  ## We want to use virtual XXX foo() override; !
+  ##
+  ## It is vastly easier to determine which member function is virtual /
+  ## derived by only inspecting the beginning of the member function
+  ## declaration in the derived class that looking at the end of
+  ## declaration, where the keywords 'override' are typically not
+  ## aligned, YMMV.
+  ##
+
+  -cppcoreguidelines-explicit-virtual-functions,
+  -hicpp-use-override,
+  -modernize-use-override,
+WarningsAsErrors: false
+FormatStyle:     file
+CheckOptions:
+  - key:             misc-include-header.DeduplicateFindings
+    value:           true
+    # # default:
+    # value:         true
+  - key:             misc-include-cleaner.IgnoreHeaders
+    # clang-tidy ignored headers:
+    #
+    #   - yaml-cpp headers
+    #   - fmt headers
+    #   - protobuf headers
+    #   - gflags, gtest and filesystem wrapper header(s)
+    #
+    value:           '
+                     yaml-cpp/.*;
+                     fmt/.*;
+                     gflags/.*;
+                     filesystem;
+                     experimental/filesystem;
+                     filesystem-wrapper.hh;
+                     gflags-wrapper.hh;
+                     gtest-wrapper.hh;
+                     iio-wrapper.hh;
+                     iio-fwd.hh;
+                     iio.h;
+                     requests.pb.h;
+                     responses.pb.h;
+                     pb.h;
+                     '
+  - key:             portability-restrict-system-includes.Includes
+    value:           '
+                     *,
+                     -experimental/filesystem,
+                     '
+  - key:             bugprone-easily-swappable-parameters.MinimumLength
+    value:           3
+  - key:             readability-identifier-length.MinimumVariableNameLength
+    value:           3
+  - key:             readability-identifier-length.IgnoredVariableNames
+    value:           "^it|rf|cf|df|m$"
+    ## ## default:
+    # value:         ""
+  - key:             readability-identifier-length.MinimumParameterNameLength
+    value:           3
+  - key:             readability-identifier-length.IgnoredParameterNames
+    value:           "^[n]|os|it$"
+    ## ## default:
+    ## value:        "^[n]$"
+  - key:             readability-identifier-length.MinimumLoopCounterNameLength
+    value:           1
+    ## ## default:
+    ## value:        2
+  - key:             readability-identifier-length.IgnoredLoopCounterNames
+    value:           "^[eijk_]|fp$"
+    ## ## default:
+    ## value:        "^[ijk_]$"
+  - key:             readability-identifier-length.MinimumExceptionNameLength
+    ## default:
+    value:           2
+  - key:             readability-identifier-length.IgnoredExceptionVariableNames
+    ## default:
+    value:           "^[e]$"

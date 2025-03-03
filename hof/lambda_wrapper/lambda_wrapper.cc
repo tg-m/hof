@@ -8,4 +8,4 @@
 
 #include "lambda_wrapper.hh"
 
-namespace hof {} /* namespace hof */
+namespace hof { } /* namespace hof */

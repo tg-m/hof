@@ -13,26 +13,26 @@
 #endif /* __clang__ */
 
 
-#include <concepts>
-#include <memory>
+// #include <concepts>
+// #include <memory>
 
 #include "gtest-wrapper.hh"
 
 #include "visitable.hh"
 
 
+namespace {
 template<typename T, hof::Visitable<T> Visit_f>
-hof::visit_result_t consume(T const& data, Visit_f const& visit) {
+static hof::visit_result_t consume(T const& data, Visit_f const& visit) {
     return visit(data);
 }
 
 class visitable_Test : public testing::Test {
 public:
-    virtual void SetUp() override {
-    }
-    virtual void TearDown() override {
-    }
+    virtual void SetUp() override { }
+    virtual void TearDown() override { }
 };
+} /* namespace */
 
 TEST_F(visitable_Test, fixture_self_test) { }
 TEST_F(visitable_Test, DISABLED_test) { }
@@ -41,7 +41,8 @@ TEST_F(visitable_Test, DISABLED_test) { }
 
 TEST_F(visitable_Test, basic_concept_test) {
     auto const l = [](int x) {
-        return 0 == x % 2 ? hof::visit_result_t::do_end_by_visit : hof::visit_result_t::do_end_normally;
+        return 0 == x % 2 ? hof::visit_result_t::do_end_by_visit
+                          : hof::visit_result_t::do_end_normally;
     };
 
     ASSERT_EQ(hof::visit_result_t::do_end_by_visit, consume(0, l));

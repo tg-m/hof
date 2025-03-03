@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# This hook checks whether IDE configuration files has changed
+# and if so, then asks user to copy IDE configuration
+# into appropriate directory. It is organised in such a way as
+# to avoid polluting top directory with IDE configs.
+
+
+IDE_CONFIG_DIR=ide-configuration/${USER}
+eclipse_settings_dir=${IDE_CONFIG_DIR}/.settings
+mkdir -p ${IDE_CONFIG_DIR}
+mkdir -p ${eclipse_settings_dir}
+
+F=(
+.project .cproject
+.settings/org.eclipse.cdt.codan.core.prefs
+.settings/org.eclipse.ltk.core.refactoring.prefs
+.settings/language.settings.xml
+
+.classpath .settings/org.eclipse.jdt.core.prefs
+)
+
+CAN_COMMIT=0
+
+for f in ${F[@]}; do
+    if [ -f ${f} ] && [ ! -L ${f} ]; then
+        # file exists and it is not a broken symlink
+
+        diff $f ${IDE_CONFIG_DIR}/${f} 2>&1 1>/dev/null
+        if [ $? -ne 0 ]; then
+            echo "File ${f} has changed!"
+            echo "Back-up it up as ${IDE_CONFIG_DIR}/${f} or run:"
+            echo ""
+            echo "  'git commit --no-verify'"
+            echo ""
+            CAN_COMMIT=1
+        fi
+    fi
+
+done
+
+#echo "CAN COMMIT: ${CAN_COMMIT}"
+
+exit ${CAN_COMMIT}
+
